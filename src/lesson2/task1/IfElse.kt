@@ -2,7 +2,8 @@
 
 package lesson2.task1
 
-import lesson1.task1.discriminant
+import lesson1.task1.sqr
+import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.sqrt
 
@@ -16,6 +17,7 @@ import kotlin.math.sqrt
  *
  * Найти число корней квадратного уравнения ax^2 + bx + c = 0
  */
+fun discriminant(a: Double, b: Double, c: Double) = sqr(b) - 4 * a * c
 fun quadraticRootNumber(a: Double, b: Double, c: Double): Int {
     val discriminant = discriminant(a, b, c)
     return when {
@@ -68,7 +70,15 @@ fun minBiRoot(a: Double, b: Double, c: Double): Double {
  * Мой возраст. Для заданного 0 < n < 200, рассматриваемого как возраст человека,
  * вернуть строку вида: «21 год», «32 года», «12 лет».
  */
-fun ageDescription(age: Int): String = TODO()
+fun ageDescription(age: Int): String {
+    val n: Int = age % 10
+    return when {
+        (n == 1) && (age != 11) && (age != 111) -> "$age год"
+        (n > 1) && (n < 5) && (age !in 12..14) -> "$age года"
+        ((n > 4) || (n == 0)) || (age in 5..20) || (age in 105..120) -> "$age лет"
+        else -> "Вы динозавр"
+    }
+}
 
 /**
  * Простая (2 балла)
@@ -81,7 +91,11 @@ fun timeForHalfWay(
     t1: Double, v1: Double,
     t2: Double, v2: Double,
     t3: Double, v3: Double
-): Double = TODO()
+): Double {
+    val sHalf = (t1 * v1 + t2 * v2 + t3 * v3) / 2
+    if (sHalf < t1 * v1) return sHalf / v1 else if (sHalf < t1 * v1 + t2 * v2) return t1 + ((sHalf - t1 * v1) / v2)
+    else return (t1 + t2 + (sHalf - (t1 * v1 + t2 * v2)) / v3)
+}
 
 /**
  * Простая (2 балла)
@@ -96,7 +110,17 @@ fun whichRookThreatens(
     kingX: Int, kingY: Int,
     rookX1: Int, rookY1: Int,
     rookX2: Int, rookY2: Int
-): Int = TODO()
+): Int {
+    if (kingX == rookX1) {
+        if ((kingX == rookX2) || (kingY == rookY2)) return 3 else return 1
+    } else if (kingX == rookX2) {
+        if (kingY == rookY1) return 3 else return 2
+    } else if (kingY == rookY2) {
+        if ((kingY == rookY1) || (kingX == rookX1)) return 3 else return 2
+    } else if (kingY == rookY1) {
+        if (kingX == rookX2) return 3 else return 1
+    } else return 0
+}
 
 /**
  * Простая (2 балла)
@@ -112,7 +136,12 @@ fun rookOrBishopThreatens(
     kingX: Int, kingY: Int,
     rookX: Int, rookY: Int,
     bishopX: Int, bishopY: Int
-): Int = TODO()
+): Int {
+    // Если слон предстваляет угрозу королю, то между ними образуется прямоугольный равнобедренный треугольник
+    if (abs(kingX - bishopX) == abs(kingY - bishopY)) {
+        if ((kingX == rookX) || (kingY == rookY)) return 3 else return 2
+    } else if ((kingX == rookX) || (kingY == rookY)) return 1 else return 0
+}
 
 /**
  * Простая (2 балла)
@@ -122,7 +151,35 @@ fun rookOrBishopThreatens(
  * прямоугольным (вернуть 1) или тупоугольным (вернуть 2).
  * Если такой треугольник не существует, вернуть -1.
  */
-fun triangleKind(a: Double, b: Double, c: Double): Int = TODO()
+fun triangleKind(a: Double, b: Double, c: Double): Int {
+    var minSide1: Double = 0.0
+    var minSide2: Double = 0.0
+    var maxSide: Double = 0.0
+    if (a > b) {
+        if (a > c) {
+            maxSide = a
+            minSide1 = b
+            minSide2 = c
+        } else {
+            maxSide = c
+            minSide1 = a
+            minSide2 = b
+        }
+    } else if (b > c) {
+        maxSide = b
+        minSide1 = a
+        minSide2 = c
+    } else {
+        maxSide = c
+        minSide1 = a
+        minSide2 = b
+    }
+    if ((a + b > c) && (a + c > b) && (b + c > a)) {
+        if (sqr(minSide1) + sqr(minSide2) == sqr(maxSide)) return 1
+        else if (sqr(minSide1) + sqr(minSide2) > sqr(maxSide)) return 0
+        else return 2
+    } else return -1
+}
 
 /**
  * Средняя (3 балла)
@@ -132,4 +189,14 @@ fun triangleKind(a: Double, b: Double, c: Double): Int = TODO()
  * Найти длину пересечения отрезков AB и CD.
  * Если пересечения нет, вернуть -1.
  */
-fun segmentLength(a: Int, b: Int, c: Int, d: Int): Int = TODO()
+fun segmentLength(a: Int, b: Int, c: Int, d: Int): Int {
+    if ((c <= b) && (a <= d)) {
+        return when {
+            (c < a) && (d < b) -> d - a  //Пересечение двумя точками
+            (a < c) && (b < d) -> b - c  //Обратное пересечение двумя точками
+            (c < a) && (b < d) -> b - a  //Один отрезок - часть второго
+            (a < c) && (d < b) -> d - c  //Один отрезок - часть второго
+            else -> -1
+        }
+    } else return -1
+}
