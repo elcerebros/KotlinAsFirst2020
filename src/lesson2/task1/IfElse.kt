@@ -71,12 +71,12 @@ fun minBiRoot(a: Double, b: Double, c: Double): Double {
  * вернуть строку вида: «21 год», «32 года», «12 лет».
  */
 fun ageDescription(age: Int): String {
-    val n: Int = age % 10
+    val n = age % 10
     return when {
-        (n == 1) && (age != 11) && (age != 111) -> "$age год"
-        (n > 1) && (n < 5) && (age !in 12..14) -> "$age года"
-        ((n > 4) || (n == 0)) || (age in 5..20) || (age in 105..120) -> "$age лет"
-        else -> "Вы динозавр"
+        n == 1 && age != 11 && age != 111 -> "$age год"
+        n in 2..3 && age !in 12..14 && age !in 112..114 -> "$age года"
+        (n > 4 || n == 0) || (age in 5..20) || (age in 105..120) -> "$age лет"
+        else -> ""
     }
 }
 
@@ -93,8 +93,12 @@ fun timeForHalfWay(
     t3: Double, v3: Double
 ): Double {
     val sHalf = (t1 * v1 + t2 * v2 + t3 * v3) / 2
-    if (sHalf < t1 * v1) return sHalf / v1 else if (sHalf < t1 * v1 + t2 * v2) return t1 + ((sHalf - t1 * v1) / v2)
-    else return (t1 + t2 + (sHalf - (t1 * v1 + t2 * v2)) / v3)
+    return when {
+        sHalf < t1 * v1 -> sHalf / v1
+        sHalf < t1 * v1 + t2 * v2 -> t1 + ((sHalf - t1 * v1) / v2)
+        else -> t1 + t2 + (sHalf - t1 * v1 - t2 * v2) / v3
+    }
+
 }
 
 /**
@@ -111,15 +115,13 @@ fun whichRookThreatens(
     rookX1: Int, rookY1: Int,
     rookX2: Int, rookY2: Int
 ): Int {
-    if (kingX == rookX1) {
-        if ((kingX == rookX2) || (kingY == rookY2)) return 3 else return 1
-    } else if (kingX == rookX2) {
-        if (kingY == rookY1) return 3 else return 2
-    } else if (kingY == rookY2) {
-        if ((kingY == rookY1) || (kingX == rookX1)) return 3 else return 2
-    } else if (kingY == rookY1) {
-        if (kingX == rookX2) return 3 else return 1
-    } else return 0
+    return when {
+        kingX == rookX1 -> return if (kingX == rookX2 || kingY == rookY2) 3 else 1
+        kingX == rookX2 -> return if (kingY == rookY1) 3 else 2
+        kingY == rookY2 -> return if (kingY == rookY1 || kingX == rookX1) 3 else 2
+        kingY == rookY1 -> return if (kingX == rookX2) 3 else 1
+        else -> 0
+    }
 }
 
 /**
@@ -138,9 +140,9 @@ fun rookOrBishopThreatens(
     bishopX: Int, bishopY: Int
 ): Int {
     // Если слон предстваляет угрозу королю, то между ними образуется прямоугольный равнобедренный треугольник
-    if (abs(kingX - bishopX) == abs(kingY - bishopY)) {
-        if ((kingX == rookX) || (kingY == rookY)) return 3 else return 2
-    } else if ((kingX == rookX) || (kingY == rookY)) return 1 else return 0
+    return if (abs(kingX - bishopX) == abs(kingY - bishopY)) {
+        if (kingX == rookX || kingY == rookY) 3 else 2
+    } else if (kingX == rookX || kingY == rookY) 1 else 0
 }
 
 /**
@@ -152,9 +154,9 @@ fun rookOrBishopThreatens(
  * Если такой треугольник не существует, вернуть -1.
  */
 fun triangleKind(a: Double, b: Double, c: Double): Int {
-    var minSide1: Double = 0.0
-    var minSide2: Double = 0.0
-    var maxSide: Double = 0.0
+    var minSide1 = 0.0
+    var minSide2 = 0.0
+    var maxSide = 0.0
     if (a > b) {
         if (a > c) {
             maxSide = a
@@ -174,10 +176,10 @@ fun triangleKind(a: Double, b: Double, c: Double): Int {
         minSide1 = a
         minSide2 = b
     }
-    if ((a + b > c) && (a + c > b) && (b + c > a)) {
-        if (sqr(minSide1) + sqr(minSide2) == sqr(maxSide)) return 1
-        else if (sqr(minSide1) + sqr(minSide2) > sqr(maxSide)) return 0
-        else return 2
+    if (a + b > c && a + c > b && b + c > a) return when {
+        sqr(minSide1) + sqr(minSide2) == sqr(maxSide) -> 1
+        sqr(minSide1) + sqr(minSide2) > sqr(maxSide) -> 0
+        else -> 2
     } else return -1
 }
 
@@ -190,13 +192,13 @@ fun triangleKind(a: Double, b: Double, c: Double): Int {
  * Если пересечения нет, вернуть -1.
  */
 fun segmentLength(a: Int, b: Int, c: Int, d: Int): Int {
-    if ((c <= b) && (a <= d)) {
-        return when {
-            (c < a) && (d < b) -> d - a  //Пересечение двумя точками
-            (a < c) && (b < d) -> b - c  //Обратное пересечение двумя точками
-            (c < a) && (b < d) -> b - a  //Один отрезок - часть второго
-            (a < c) && (d < b) -> d - c  //Один отрезок - часть второго
+    return if ((c <= b) && (a <= d)) {  //Я не особо понимаю, в чем смысл инвертирования...
+        when {
+            (c <= a) && (d <= b) -> d - a  //Пересечение двумя точками
+            (a <= c) && (b <= d) -> b - c  //Обратное пересечение двумя точками
+            (c <= a) && (b <= d) -> b - a  //Один отрезок - часть второго
+            (a <= c) && (d <= b) -> d - c  //Один отрезок - часть второго
             else -> -1
         }
-    } else return -1
+    } else -1
 }

@@ -28,8 +28,8 @@ fun isNumberHappy(number: Int): Boolean = (number / 1000 + number / 100 % 10) ==
  * Определить, угрожают ли они друг другу. Вернуть true, если угрожают.
  * Считать, что ферзи не могут загораживать друг друга.
  */
-fun queenThreatens(x1: Int, y1: Int, x2: Int, y2: Int): Boolean =
-    (x1 == x2) || (y1 == y2) || (abs(y2 - y1) == abs(x2 - x1))
+fun queenThreatens(x1: Int, y1: Int, x2: Int, y2: Int) =
+    x1 == x2 || y1 == y2 || abs(y2 - y1) == abs(x2 - x1)
 
 
 /**
@@ -39,14 +39,12 @@ fun queenThreatens(x1: Int, y1: Int, x2: Int, y2: Int): Boolean =
  * Вернуть число дней в этом месяце этого года по григорианскому календарю.
  */
 fun daysInMonth(month: Int, year: Int): Int {
-    if (month in 1..7) {
-        if (month % 2 == 0) {
-            if (((year % 4 == 0) && (month == 2) && (year % 100 !== 0)) || ((year % 400 == 0) && (month == 2))) return 29
-            else {
-                if (month == 2) return 28 else return 30
-            }
-        } else return 31
-    } else if (month % 2 == 0) return 31 else return 30
+    return if (month in 1..7) {
+        if (month % 2 == 0)
+            if ((year % 4 == 0 && month == 2 && year % 100 !== 0) || (year % 400 == 0 && month == 2)) 29
+            else if (month == 2) 28 else 30
+        else 31
+    } else if (month % 2 == 0) 31 else 30
 }
 
 /**
@@ -59,11 +57,7 @@ fun daysInMonth(month: Int, year: Int): Int {
 fun circleInside(
     x1: Double, y1: Double, r1: Double,
     x2: Double, y2: Double, r2: Double
-): Boolean {
-    if (r1 <= r2) {
-        return sqr(r1 - r2) >= sqr(x1 - x2) + sqr(y1 - y2)
-    } else return false
-}
+) = ((r1 <= r2) && sqr(r1 - r2) >= sqr(x1 - x2) + sqr(y1 - y2))
 
 /**
  * Средняя (3 балла)
@@ -79,5 +73,5 @@ fun brickPasses(a: Int, b: Int, c: Int, r: Int, s: Int): Boolean {
     val s2 = b * c
     val s3 = a * c
     val S = r * s
-    return (s1 <= S) || (s2 <= S) || (s3 <= S)
+    return s1 <= S || s2 <= S || s3 <= S
 }
