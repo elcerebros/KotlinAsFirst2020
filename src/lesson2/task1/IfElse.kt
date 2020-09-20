@@ -74,7 +74,7 @@ fun ageDescription(age: Int): String {
     val n = age % 10
     return when {
         n == 1 && age != 11 && age != 111 -> "$age год"
-        n in 2..3 && age !in 12..14 && age !in 112..114 -> "$age года"
+        n in 2..4 && age !in 12..14 && age !in 112..114 -> "$age года"
         (n > 4 || n == 0) || (age in 5..20) || (age in 105..120) -> "$age лет"
         else -> ""
     }
