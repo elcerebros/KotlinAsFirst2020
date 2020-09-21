@@ -75,8 +75,8 @@ fun ageDescription(age: Int): String {
     return when {
         n == 1 && age != 11 && age != 111 -> "$age год"
         n in 2..4 && age !in 12..14 && age !in 112..114 -> "$age года"
-        (n > 4 || n == 0) || (age in 5..20) || (age in 105..120) -> "$age лет"
-        else -> ""
+        (n > 4 || n == 0) || age in 5..20 || age in 105..120 -> "$age лет"
+        else -> "" //IDEA требует else
     }
 }
 
@@ -95,7 +95,7 @@ fun timeForHalfWay(
     val sHalf = (t1 * v1 + t2 * v2 + t3 * v3) / 2
     return when {
         sHalf < t1 * v1 -> sHalf / v1
-        sHalf < t1 * v1 + t2 * v2 -> t1 + ((sHalf - t1 * v1) / v2)
+        sHalf < t1 * v1 + t2 * v2 -> t1 + (sHalf - t1 * v1) / v2
         else -> t1 + t2 + (sHalf - t1 * v1 - t2 * v2) / v3
     }
 
@@ -114,14 +114,12 @@ fun whichRookThreatens(
     kingX: Int, kingY: Int,
     rookX1: Int, rookY1: Int,
     rookX2: Int, rookY2: Int
-): Int {
-    return when {
-        kingX == rookX1 -> return if (kingX == rookX2 || kingY == rookY2) 3 else 1
-        kingX == rookX2 -> return if (kingY == rookY1) 3 else 2
-        kingY == rookY2 -> return if (kingY == rookY1 || kingX == rookX1) 3 else 2
-        kingY == rookY1 -> return if (kingX == rookX2) 3 else 1
-        else -> 0
-    }
+): Int = when {
+    kingX == rookX1 -> if (kingX == rookX2 || kingY == rookY2) 3 else 1
+    kingX == rookX2 -> if (kingY == rookY1) 3 else 2
+    kingY == rookY2 -> if (kingY == rookY1 || kingX == rookX1) 3 else 2
+    kingY == rookY1 -> if (kingX == rookX2) 3 else 1
+    else -> 0
 }
 
 /**
@@ -138,12 +136,9 @@ fun rookOrBishopThreatens(
     kingX: Int, kingY: Int,
     rookX: Int, rookY: Int,
     bishopX: Int, bishopY: Int
-): Int {
-    // Если слон предстваляет угрозу королю, то между ними образуется прямоугольный равнобедренный треугольник
-    return if (abs(kingX - bishopX) == abs(kingY - bishopY)) {
-        if (kingX == rookX || kingY == rookY) 3 else 2
-    } else if (kingX == rookX || kingY == rookY) 1 else 0
-}
+): Int = if (abs(kingX - bishopX) == abs(kingY - bishopY)) {
+    if (kingX == rookX || kingY == rookY) 3 else 2
+} else if (kingX == rookX || kingY == rookY) 1 else 0
 
 /**
  * Простая (2 балла)
@@ -176,11 +171,13 @@ fun triangleKind(a: Double, b: Double, c: Double): Int {
         minSide1 = a
         minSide2 = b
     }
-    if (a + b > c && a + c > b && b + c > a) return when {
+    return when {
+        !(a + b > c && a + c > b && b + c > a) -> -1
         sqr(minSide1) + sqr(minSide2) == sqr(maxSide) -> 1
         sqr(minSide1) + sqr(minSide2) > sqr(maxSide) -> 0
-        else -> 2
-    } else return -1
+        sqr(minSide1) + sqr(minSide2) < sqr(maxSide) -> 2
+        else -> -1
+    }
 }
 
 /**
@@ -192,13 +189,12 @@ fun triangleKind(a: Double, b: Double, c: Double): Int {
  * Если пересечения нет, вернуть -1.
  */
 fun segmentLength(a: Int, b: Int, c: Int, d: Int): Int {
-    return if ((c <= b) && (a <= d)) {  //Я не особо понимаю, в чем смысл инвертирования...
-        when {
-            (c <= a) && (d <= b) -> d - a  //Пересечение двумя точками
-            (a <= c) && (b <= d) -> b - c  //Обратное пересечение двумя точками
-            (c <= a) && (b <= d) -> b - a  //Один отрезок - часть второго
-            (a <= c) && (d <= b) -> d - c  //Один отрезок - часть второго
-            else -> -1
-        }
-    } else -1
+    return when {
+        !((c <= b) && (a <= d)) -> -1
+        (c <= a) && (d <= b) -> d - a  //Пересечение двумя точками
+        (a <= c) && (b <= d) -> b - c  //Обратное пересечение двумя точками
+        (c <= a) && (b <= d) -> b - a  //Один отрезок - часть второго
+        (a <= c) && (d <= b) -> d - c  //Один отрезок - часть второго
+        else -> -1
+    }
 }
