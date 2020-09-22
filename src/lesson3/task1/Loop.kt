@@ -96,7 +96,17 @@ fun fib(n: Int): Int = if (n < 3) 1 else fib(n - 1) + fib(n - 2)
  *
  * Для заданного числа n > 1 найти минимальный делитель, превышающий 1
  */
-fun minDivisor(n: Int): Int = TODO()
+fun minDivisor(n: Int): Int {
+    var number = n
+    var minDiv = 0
+    var x = 0
+    while (number > 0) {
+        x = number % 10
+        if (x > minDiv && x > 1) minDiv = x
+        number /= 10
+    }
+    return minDiv
+}
 
 /**
  * Простая (2 балла)
