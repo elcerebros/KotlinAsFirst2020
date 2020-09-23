@@ -42,8 +42,8 @@ fun queenThreatens(x1: Int, y1: Int, x2: Int, y2: Int) =
 fun daysInMonth(month: Int, year: Int): Int =
     if (month in 1..7) {
         if (month % 2 == 0) {
-            if (month == 2 && ((year % 4 == 0 && year % 100 !== 0) || year % 400 == 0)) 29
-            else if (month == 2) 28 else 30
+            if (month == 2) if ((year % 4 == 0 && year % 100 !== 0) || year % 400 == 0) 29 else 28
+            else 30
         } else 31
     } else if (month % 2 == 0) 31 else 30
 
