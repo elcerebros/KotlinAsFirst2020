@@ -40,12 +40,9 @@ fun queenThreatens(x1: Int, y1: Int, x2: Int, y2: Int) =
  * Вернуть число дней в этом месяце этого года по григорианскому календарю.
  */
 fun daysInMonth(month: Int, year: Int): Int =
-    if (month in 1..7) {
-        if (month % 2 == 0) {
-            if (month == 2) if ((year % 4 == 0 && year % 100 !== 0) || year % 400 == 0) 29 else 28
-            else 30
-        } else 31
-    } else if (month % 2 == 0) 31 else 30
+    if (month == 2) if ((year % 4 == 0 && year % 100 !== 0) || year % 400 == 0) 29 else 28
+    else if (month in 1..7) if (month % 2 == 0) 30 else 31
+    else if (month % 2 == 0) 31 else 30
 
 /**
  * Простая (2 балла)
@@ -72,6 +69,8 @@ fun brickPasses(a: Int, b: Int, c: Int, r: Int, s: Int): Boolean {
     val s1 = a * b
     val s2 = b * c
     val s3 = a * c
-    val S = r * s
-    return s1 <= S || s2 <= S || s3 <= S
+    val s0 = r * s
+    return s1 <= s0 && (a <= r && b <= s || b <= r && a <= s) ||
+            s2 <= s0 && (b <= r && c <= s || c <= r && b <= s) ||
+            s3 <= s0 && (a <= r && c <= s || c <= r && a <= s)
 }

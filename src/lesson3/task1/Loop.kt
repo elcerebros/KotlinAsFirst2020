@@ -97,15 +97,11 @@ fun fib(n: Int): Int = if (n < 3) 1 else fib(n - 1) + fib(n - 2)
  * Для заданного числа n > 1 найти минимальный делитель, превышающий 1
  */
 fun minDivisor(n: Int): Int {
-    var number = n
-    var minDiv = 0
-    var x = 0
-    while (number > 0) {
-        x = number % 10
-        if (x > minDiv && x > 1) minDiv = x
-        number /= 10
+    var min = n
+    for (i in n downTo 2) {
+        if (n % i == 0 && i < min) min = i
     }
-    return minDiv
+    return min
 }
 
 /**
@@ -113,7 +109,13 @@ fun minDivisor(n: Int): Int {
  *
  * Для заданного числа n > 1 найти максимальный делитель, меньший n
  */
-fun maxDivisor(n: Int): Int = TODO()
+fun maxDivisor(n: Int): Int {
+    var max = 0
+    for (i in 1 until n) {
+        if (n % i == 0 && i > max) max = i
+    }
+    return max
+}
 
 /**
  * Простая (2 балла)
