@@ -80,7 +80,7 @@ fun digitNumber(n: Int): Int {
     do {
         count++
         number /= 10
-    } while (number > 0)
+    } while (abs(number) > 0)
     return count
 }
 
@@ -109,11 +109,12 @@ fun fib(n: Int): Int {
  * Для заданного числа n > 1 найти минимальный делитель, превышающий 1
  */
 fun minDivisor(n: Int): Int {
-    var min = n
-    for (i in n / 2 downTo 2) {
-        if (n % i == 0 && i < min) min = i
+    var i = 2
+    while (i <= n) {
+        if (n % i == 0) return i
+        i++
     }
-    return min
+    return 0
 }
 
 /**
@@ -163,11 +164,10 @@ fun collatzSteps(x: Int): Int {
  * минимальное число k, которое делится и на m и на n без остатка
  */
 fun lcm(m: Int, n: Int): Int {
-    var k = m * n
-    for (i in m * n downTo min(m, n)) {
-        if (i % m == 0 && i % n == 0 && i < k) k = i
+    for (i in min(m, n)..m * n) {
+        if (i % m == 0 && i % n == 0) return i
     }
-    return k
+    return 0
 }
 
 /**
