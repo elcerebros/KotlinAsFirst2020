@@ -1,8 +1,9 @@
-@file:Suppress("UNUSED_PARAMETER")
+@file:Suppress("UNUSED_PARAMETER", "DEPRECATED_IDENTITY_EQUALS")
 
 package lesson3.task1
 
-import kotlin.math.sqrt
+import lesson1.task1.sqr
+import kotlin.math.*
 
 // Урок 3: циклы
 // Максимальное количество баллов = 9
@@ -89,7 +90,18 @@ fun digitNumber(n: Int): Int {
  * Найти число Фибоначчи из ряда 1, 1, 2, 3, 5, 8, 13, 21, ... с номером n.
  * Ряд Фибоначчи определён следующим образом: fib(1) = 1, fib(2) = 1, fib(n+2) = fib(n) + fib(n+1)
  */
-fun fib(n: Int): Int = if (n < 3) 1 else fib(n - 1) + fib(n - 2)
+fun fib(n: Int): Int {
+    var num1 = 1
+    var num2 = 1
+    var num3 = 0
+    if (n <= 2) return 1
+    else for (i in 3..n) {
+        num3 = num1 + num2
+        num1 = num2
+        num2 = num3
+    }
+    return num3
+}
 
 /**
  * Простая (2 балла)
@@ -98,7 +110,7 @@ fun fib(n: Int): Int = if (n < 3) 1 else fib(n - 1) + fib(n - 2)
  */
 fun minDivisor(n: Int): Int {
     var min = n
-    for (i in n downTo 2) {
+    for (i in n / 2 downTo 2) {
         if (n % i == 0 && i < min) min = i
     }
     return min
@@ -111,7 +123,7 @@ fun minDivisor(n: Int): Int {
  */
 fun maxDivisor(n: Int): Int {
     var max = 0
-    for (i in 1 until n) {
+    for (i in 1..n / 2) {
         if (n % i == 0 && i > max) max = i
     }
     return max
@@ -133,7 +145,16 @@ fun maxDivisor(n: Int): Int {
  * Написать функцию, которая находит, сколько шагов требуется для
  * этого для какого-либо начального X > 0.
  */
-fun collatzSteps(x: Int): Int = TODO()
+fun collatzSteps(x: Int): Int {
+    var steps = 0
+    var xn = x.toDouble()
+    while (xn > 1) {
+        steps++
+        if (xn.toInt() % 2 == 0) xn /= 2
+        else xn = 3 * xn + 1
+    }
+    return steps
+}
 
 /**
  * Средняя (3 балла)
@@ -141,7 +162,13 @@ fun collatzSteps(x: Int): Int = TODO()
  * Для заданных чисел m и n найти наименьшее общее кратное, то есть,
  * минимальное число k, которое делится и на m и на n без остатка
  */
-fun lcm(m: Int, n: Int): Int = TODO()
+fun lcm(m: Int, n: Int): Int {
+    var k = m * n
+    for (i in m * n downTo min(m, n)) {
+        if (i % m == 0 && i % n == 0 && i < k) k = i
+    }
+    return k
+}
 
 /**
  * Средняя (3 балла)
@@ -150,7 +177,12 @@ fun lcm(m: Int, n: Int): Int = TODO()
  * Взаимно простые числа не имеют общих делителей, кроме 1.
  * Например, 25 и 49 взаимно простые, а 6 и 8 -- нет.
  */
-fun isCoPrime(m: Int, n: Int): Boolean = TODO()
+fun isCoPrime(m: Int, n: Int): Boolean {
+    for (i in 2..max(m, n)) {
+        if (m % i == 0 && n % i == 0) return false
+    }
+    return true
+}
 
 /**
  * Средняя (3 балла)
@@ -159,7 +191,12 @@ fun isCoPrime(m: Int, n: Int): Boolean = TODO()
  * то есть, существует ли такое целое k, что m <= k*k <= n.
  * Например, для интервала 21..28 21 <= 5*5 <= 28, а для интервала 51..61 квадрата не существует.
  */
-fun squareBetweenExists(m: Int, n: Int): Boolean = TODO()
+fun squareBetweenExists(m: Int, n: Int): Boolean {
+    for (i in 1..sqrt(n.toDouble()).toInt()) {
+        if (sqr(i) in m..n) return true
+    }
+    return false
+}
 
 /**
  * Средняя (3 балла)
@@ -168,7 +205,25 @@ fun squareBetweenExists(m: Int, n: Int): Boolean = TODO()
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
-fun revert(n: Int): Int = TODO()
+fun revert(n: Int): Int {
+    var number = n
+    var result = 0
+    var dec = 1 //степень десятки в числе
+    var k = 0 //счетчик разрядов числа
+    while (number > 0) {
+        k++
+        number /= 10
+        dec *= 10
+    }
+    number = n
+    while (k > 0) {
+        dec /= 10
+        result += (number % 10) * dec
+        number /= 10
+        k -= 1
+    }
+    return result
+}
 
 /**
  * Средняя (3 балла)
@@ -179,7 +234,8 @@ fun revert(n: Int): Int = TODO()
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
-fun isPalindrome(n: Int): Boolean = TODO()
+fun isPalindrome(n: Int) = if (n / 10 == 0) true else n == revert(n)
+
 
 /**
  * Средняя (3 балла)
@@ -189,7 +245,22 @@ fun isPalindrome(n: Int): Boolean = TODO()
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
-fun hasDifferentDigits(n: Int): Boolean = TODO()
+fun hasDifferentDigits(n: Int): Boolean {
+    var number1 = n
+    var number2 = n
+    var x1 = 0
+    var x2 = 0
+    while (number1 > 0) {
+        x1 = number1 % 10
+        while (number2 > 0) {
+            x2 = number2 % 10
+            if (x1 !== x2) return true
+            number2 /= 10
+        }
+        number1 /= 10
+    }
+    return false
+}
 
 /**
  * Средняя (4 балла)
@@ -200,7 +271,18 @@ fun hasDifferentDigits(n: Int): Boolean = TODO()
  * Подумайте, как добиться более быстрой сходимости ряда при больших значениях x.
  * Использовать kotlin.math.sin и другие стандартные реализации функции синуса в этой задаче запрещается.
  */
-fun sin(x: Double, eps: Double): Double = TODO()
+fun sin(x: Double, eps: Double): Double {
+    var result = 0.0
+    var a = x
+    var i = 0
+    while (a > abs(eps)) {
+        a = x.pow(2 * i + 1) / factorial(2 * i + 1)
+        if (i % 2 !== 0) result -= a
+        else result += a
+        i += 1
+    }
+    return result
+}
 
 /**
  * Средняя (4 балла)
@@ -222,7 +304,24 @@ fun cos(x: Double, eps: Double): Double = TODO()
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
-fun squareSequenceDigit(n: Int): Int = TODO()
+fun squareSequenceDigit(n: Int): Int {
+    var k = 0  //счетчик количества цифр в ряде чисел
+    var x = 0
+    var i = 1
+    var current = 0  //текущее число при значении i
+    while (n !== k) {
+        current = sqr(i)
+        i += 1
+        if (current % 10 == 0) x = current
+        else x = revert(current)
+        while (x > 0) {
+            k += 1
+            if (k == n) return x % 10
+            x /= 10
+        }
+    }
+    return 0
+}
 
 /**
  * Сложная (5 баллов)
@@ -233,4 +332,23 @@ fun squareSequenceDigit(n: Int): Int = TODO()
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
-fun fibSequenceDigit(n: Int): Int = TODO()
+fun fibSequenceDigit(n: Int): Int {
+    var k = 2  //счетчик количества цифр в ряде чисел
+    var x = 0  //текущее число
+    var num1 = 1
+    var num2 = 1
+    var num3 = 0
+    if (n <= 2) return 1
+    else while (n !== k) {
+        num3 = num1 + num2
+        x = revert(num3)
+        while (x > 0) {
+            k += 1
+            if (k == n) return x % 10
+            x /= 10
+        }
+        num1 = num2
+        num2 = num3
+    }
+    return 0
+}
