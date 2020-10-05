@@ -24,6 +24,17 @@ fun factorial(n: Int): Double {
     return result
 }
 
+
+fun countDigits(x: Int): Int {
+    var number = x
+    var k = 0
+    while (number > 0) {
+        k++
+        number /= 10
+    }
+    return k
+}
+
 /**
  * Пример
  *
@@ -110,7 +121,8 @@ fun fib(n: Int): Int {
  */
 fun minDivisor(n: Int): Int {
     var i = 2
-    while (i <= n) {
+    if (n == 2 || isPrime(n)) return n
+    while (i <= n / 2) {
         if (n % i == 0) return i
         i++
     }
@@ -124,7 +136,8 @@ fun minDivisor(n: Int): Int {
  */
 fun maxDivisor(n: Int): Int {
     var max = 0
-    for (i in 1..n / 2) {
+    if (isPrime(n)) return 1
+    for (i in 2..n / 2) {
         if (n % i == 0 && i > max) max = i
     }
     return max
@@ -148,10 +161,10 @@ fun maxDivisor(n: Int): Int {
  */
 fun collatzSteps(x: Int): Int {
     var steps = 0
-    var xn = x.toDouble()
+    var xn = x
     while (xn > 1) {
         steps++
-        if (xn.toInt() % 2 == 0) xn /= 2
+        if (xn % 2 == 0) xn /= 2
         else xn = 3 * xn + 1
     }
     return steps
@@ -234,7 +247,7 @@ fun revert(n: Int): Int {
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
-fun isPalindrome(n: Int) = if (n / 10 == 0) true else n == revert(n)
+fun isPalindrome(n: Int) = n == revert(n) //я не понимаю, в чем тут ошибка...
 
 
 /**
@@ -246,18 +259,11 @@ fun isPalindrome(n: Int) = if (n / 10 == 0) true else n == revert(n)
  * Использовать операции со строками в этой задаче запрещается.
  */
 fun hasDifferentDigits(n: Int): Boolean {
-    var number1 = n
-    var number2 = n
-    var x1 = 0
-    var x2 = 0
-    while (number1 > 0) {
-        x1 = number1 % 10
-        while (number2 > 0) {
-            x2 = number2 % 10
-            if (x1 !== x2) return true
-            number2 /= 10
-        }
-        number1 /= 10
+    var number = n
+    val digit = n % 10
+    while (number > 0) {
+        if (number % 10 !== digit) return true
+        number /= 10
     }
     return false
 }
@@ -273,15 +279,24 @@ fun hasDifferentDigits(n: Int): Boolean {
  */
 fun sin(x: Double, eps: Double): Double {
     var result = 0.0
-    var a = x
+    var a = 0.0
     var i = 0
-    while (a > abs(eps)) {
-        a = x.pow(2 * i + 1) / factorial(2 * i + 1)
-        if (i % 2 !== 0) result -= a
-        else result += a
-        i += 1
+    return when {
+        x % PI == 0.0 -> 0.0
+        x % (PI / 2) == 0.0 -> {
+            if (x % (2 * PI) > 0 && x % (2 * PI) < PI) 1.0
+            else -1.0
+        }
+        else -> {
+            while (a >= abs(eps)) {
+                a = (x.pow(2 * i - 1) / factorial(2 * i - 1))
+                if (i % 2 !== 0) result += a
+                else result -= a
+                i += 1
+            }
+            result
+        }
     }
-    return result
 }
 
 /**
@@ -293,7 +308,27 @@ fun sin(x: Double, eps: Double): Double {
  * Подумайте, как добиться более быстрой сходимости ряда при больших значениях x.
  * Использовать kotlin.math.cos и другие стандартные реализации функции косинуса в этой задаче запрещается.
  */
-fun cos(x: Double, eps: Double): Double = TODO()
+fun cos(x: Double, eps: Double): Double {
+    var result = 0.0
+    var a = 1.0
+    var i = 0
+    return when {
+        x % PI == 0.0 -> {
+            if (x % (2 * PI) < PI / 2 && x % (2 * PI) > -PI / 2) 1.0
+            else -1.0
+        }
+        x % (PI / 2) == 0.0 -> 0.0
+        else -> {
+            while (a >= abs(eps)) {
+                a = (x.pow(2 * i) / factorial(2 * i))
+                if (i % 2 !== 0) result += a
+                else result -= a
+                i += 1
+            }
+            result
+        }
+    }
+}
 
 /**
  * Сложная (4 балла)
@@ -306,18 +341,17 @@ fun cos(x: Double, eps: Double): Double = TODO()
  */
 fun squareSequenceDigit(n: Int): Int {
     var k = 0  //счетчик количества цифр в ряде чисел
-    var x = 0
-    var i = 1
+    var i = 1  //номер квадрата
+    var k1 = 0 //количество цифр в текущем числе
     var current = 0  //текущее число при значении i
     while (n !== k) {
         current = sqr(i)
         i += 1
-        if (current % 10 == 0) x = current
-        else x = revert(current)
-        while (x > 0) {
+        k1 = countDigits(current)
+        for (j in k + k1 downTo k) {
             k += 1
-            if (k == n) return x % 10
-            x /= 10
+            if (j == n) return current % 10
+            current /= 10
         }
     }
     return 0
