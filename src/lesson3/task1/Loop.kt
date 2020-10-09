@@ -3,6 +3,7 @@
 package lesson3.task1
 
 import lesson1.task1.sqr
+import lesson4.task1.pow
 import kotlin.math.*
 
 // Урок 3: циклы
@@ -71,11 +72,11 @@ fun isPerfect(n: Int): Boolean {
  * Найти число вхождений цифры m в число n
  */
 fun digitCountInNumber(n: Int, m: Int): Int =
-    when {
-        n == m -> 1
-        n < 10 -> 0
-        else -> digitCountInNumber(n / 10, m) + digitCountInNumber(n % 10, m)
-    }
+        when {
+            n == m -> 1
+            n < 10 -> 0
+            else -> digitCountInNumber(n / 10, m) + digitCountInNumber(n % 10, m)
+        }
 
 /**
  * Простая (2 балла)
@@ -105,13 +106,15 @@ fun fib(n: Int): Int {
     var num1 = 1
     var num2 = 1
     var num3 = 0
-    if (n <= 2) return 1
-    else for (i in 3..n) {
-        num3 = num1 + num2
-        num1 = num2
-        num2 = num3
+    return if (n <= 2) 1
+    else {
+        for (i in 3..n) {
+            num3 = num1 + num2
+            num1 = num2
+            num2 = num3
+        }
+        num3
     }
-    return num3
 }
 
 /**
@@ -122,7 +125,7 @@ fun fib(n: Int): Int {
 fun minDivisor(n: Int): Int {
     var i = 2
     if (n == 2 || isPrime(n)) return n
-    while (i <= n / 2) {
+    while (i <= sqrt(n.toDouble())) {
         if (n % i == 0) return i
         i++
     }
@@ -137,7 +140,7 @@ fun minDivisor(n: Int): Int {
 fun maxDivisor(n: Int): Int {
     var max = 0
     if (isPrime(n)) return 1
-    for (i in 2..n / 2) {
+    for (i in 2..sqrt(n.toDouble()).toInt()) {
         if (n % i == 0 && i > max) max = i
     }
     return max
@@ -221,14 +224,8 @@ fun squareBetweenExists(m: Int, n: Int): Boolean {
 fun revert(n: Int): Int {
     var number = n
     var result = 0
-    var dec = 1 //степень десятки в числе
-    var k = 0 //счетчик разрядов числа
-    while (number > 0) {
-        k++
-        number /= 10
-        dec *= 10
-    }
-    number = n
+    var k = digitNumber(n) //счетчик разрядов числа
+    var dec = pow(10, k) //степень десятки в числе
     while (k > 0) {
         dec /= 10
         result += (number % 10) * dec
@@ -262,7 +259,7 @@ fun hasDifferentDigits(n: Int): Boolean {
     var number = n
     val digit = n % 10
     while (number > 0) {
-        if (number % 10 !== digit) return true
+        if (number % 10 != digit) return true
         number /= 10
     }
     return false
@@ -279,8 +276,6 @@ fun hasDifferentDigits(n: Int): Boolean {
  */
 fun sin(x: Double, eps: Double): Double {
     var result = 0.0
-    var a = 0.0
-    var i = 0
     return when {
         x % PI == 0.0 -> 0.0
         x % (PI / 2) == 0.0 -> {
@@ -288,8 +283,11 @@ fun sin(x: Double, eps: Double): Double {
             else -1.0
         }
         else -> {
+            val x1 = x % (2 * PI)
+            var a = 1.0
+            var i = 0
             while (a >= abs(eps)) {
-                a = (x.pow(2 * i - 1) / factorial(2 * i - 1))
+                a = x1.pow(2 * i - 1) / factorial(2 * i - 1)
                 if (i % 2 !== 0) result += a
                 else result -= a
                 i += 1
