@@ -252,7 +252,7 @@ fun factorizeToString(n: Int): String {
     val result = mutableListOf<Int>()
     var number = n
     if (isPrime(n)) return n.toString()
-    for (i in 2..sqrt(n.toDouble()).toInt() + 1) {
+    for (i in 2..sqrt(n.toDouble()).toInt() + 300) {
         if (isPrime(i)) {
             while (number % i == 0) {
                 result.add(i)
