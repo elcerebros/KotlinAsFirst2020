@@ -72,11 +72,11 @@ fun isPerfect(n: Int): Boolean {
  * Найти число вхождений цифры m в число n
  */
 fun digitCountInNumber(n: Int, m: Int): Int =
-        when {
-            n == m -> 1
-            n < 10 -> 0
-            else -> digitCountInNumber(n / 10, m) + digitCountInNumber(n % 10, m)
-        }
+    when {
+        n == m -> 1
+        n < 10 -> 0
+        else -> digitCountInNumber(n / 10, m) + digitCountInNumber(n % 10, m)
+    }
 
 /**
  * Простая (2 балла)
@@ -103,11 +103,11 @@ fun digitNumber(n: Int): Int {
  * Ряд Фибоначчи определён следующим образом: fib(1) = 1, fib(2) = 1, fib(n+2) = fib(n) + fib(n+1)
  */
 fun fib(n: Int): Int {
-    var num1 = 1
-    var num2 = 1
-    var num3 = 0
     return if (n <= 2) 1
     else {
+        var num1 = 1
+        var num2 = 1
+        var num3 = 0
         for (i in 3..n) {
             num3 = num1 + num2
             num1 = num2
@@ -140,7 +140,7 @@ fun minDivisor(n: Int): Int {
 fun maxDivisor(n: Int): Int {
     var max = 0
     if (isPrime(n)) return 1
-    for (i in 2..sqrt(n.toDouble()).toInt()) {
+    for (i in 2..n / 2) {
         if (n % i == 0 && i > max) max = i
     }
     return max
@@ -244,7 +244,7 @@ fun revert(n: Int): Int {
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
-fun isPalindrome(n: Int) = n == revert(n) //я не понимаю, в чем тут ошибка...
+fun isPalindrome(n: Int) = n == revert(n)
 
 
 /**
@@ -284,13 +284,13 @@ fun sin(x: Double, eps: Double): Double {
         }
         else -> {
             val x1 = x % (2 * PI)
-            var a = 1.0
-            var i = 0
+            var a = eps
+            var i = 1
             while (a >= abs(eps)) {
                 a = x1.pow(2 * i - 1) / factorial(2 * i - 1)
-                if (i % 2 !== 0) result += a
+                if (i % 2 != 0) result += a
                 else result -= a
-                i += 1
+                i++
             }
             result
         }
@@ -307,9 +307,6 @@ fun sin(x: Double, eps: Double): Double {
  * Использовать kotlin.math.cos и другие стандартные реализации функции косинуса в этой задаче запрещается.
  */
 fun cos(x: Double, eps: Double): Double {
-    var result = 0.0
-    var a = 1.0
-    var i = 0
     return when {
         x % PI == 0.0 -> {
             if (x % (2 * PI) < PI / 2 && x % (2 * PI) > -PI / 2) 1.0
@@ -317,13 +314,18 @@ fun cos(x: Double, eps: Double): Double {
         }
         x % (PI / 2) == 0.0 -> 0.0
         else -> {
+            var result = 0.0
+            var a = 1.0
+            var i = 0
+            val x1 = abs(x % (2 * PI))
             while (a >= abs(eps)) {
-                a = (x.pow(2 * i) / factorial(2 * i))
+                a = (x1.pow(2 * i) / factorial(2 * i))
                 if (i % 2 !== 0) result += a
                 else result -= a
                 i += 1
             }
-            result
+            return if (x1 > -PI / 2 && x1 < PI / 2) abs(result)
+            else -abs(result)
         }
     }
 }
@@ -337,23 +339,36 @@ fun cos(x: Double, eps: Double): Double {
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
+
 fun squareSequenceDigit(n: Int): Int {
-    var k = 0  //счетчик количества цифр в ряде чисел
-    var i = 1  //номер квадрата
-    var k1 = 0 //количество цифр в текущем числе
-    var current = 0  //текущее число при значении i
-    while (n !== k) {
-        current = sqr(i)
-        i += 1
-        k1 = countDigits(current)
-        for (j in k + k1 downTo k) {
-            k += 1
-            if (j == n) return current % 10
-            current /= 10
+    val result = mutableListOf<Int>()
+    var a = 1 //номер цифры
+    var i = 1 //номер числа, возводимого в квадрат
+    var k = 0
+    var current = 1
+    while (n != a) {
+        when {
+            n < 4 -> {
+                result.add(sqr(i))
+                a++
+                i++
+            }
+            else -> {
+                current = sqr(i)
+                k = digitNumber(current)
+                for (j in a + k downTo a) {
+                    result.add(current % 10)
+                    if (j == n) return result[j - 1]
+                    current /= 10
+                }
+                i++
+                a += k
+            }
         }
     }
-    return 0
+    return result[n]
 }
+
 
 /**
  * Сложная (5 баллов)
