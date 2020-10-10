@@ -274,19 +274,19 @@ fun hasDifferentDigits(n: Int): Boolean {
  * Подумайте, как добиться более быстрой сходимости ряда при больших значениях x.
  * Использовать kotlin.math.sin и другие стандартные реализации функции синуса в этой задаче запрещается.
  */
-fun sin(x: Double, eps: Double): Double {
-    var result = 0.0
-    return when {
+fun sin(x: Double, eps: Double) =
+    when {
         x % PI == 0.0 -> 0.0
         x % (PI / 2) == 0.0 -> {
             if (x % (2 * PI) > 0 && x % (2 * PI) < PI) 1.0
             else -1.0
         }
         else -> {
+            var result = 0.0
             val x1 = x % (2 * PI)
             var a = eps
             var i = 1
-            while (a >= abs(eps)) {
+            while (abs(a) >= eps) {
                 a = x1.pow(2 * i - 1) / factorial(2 * i - 1)
                 if (i % 2 != 0) result += a
                 else result -= a
@@ -295,7 +295,6 @@ fun sin(x: Double, eps: Double): Double {
             result
         }
     }
-}
 
 /**
  * Средняя (4 балла)
@@ -306,8 +305,8 @@ fun sin(x: Double, eps: Double): Double {
  * Подумайте, как добиться более быстрой сходимости ряда при больших значениях x.
  * Использовать kotlin.math.cos и другие стандартные реализации функции косинуса в этой задаче запрещается.
  */
-fun cos(x: Double, eps: Double): Double {
-    return when {
+fun cos(x: Double, eps: Double) =
+    when {
         x % PI == 0.0 -> {
             if (x % (2 * PI) < PI / 2 && x % (2 * PI) > -PI / 2) 1.0
             else -1.0
@@ -315,20 +314,18 @@ fun cos(x: Double, eps: Double): Double {
         x % (PI / 2) == 0.0 -> 0.0
         else -> {
             var result = 0.0
-            var a = 1.0
+            val x1 = x % (2 * PI)
+            var a = eps
             var i = 0
-            val x1 = abs(x % (2 * PI))
-            while (a >= abs(eps)) {
-                a = (x1.pow(2 * i) / factorial(2 * i))
-                if (i % 2 !== 0) result += a
+            while (abs(a) >= eps) {
+                a = x1.pow(2 * i) / factorial(2 * i)
+                if (i % 2 == 0) result += a
                 else result -= a
-                i += 1
+                i++
             }
-            return if (x1 > -PI / 2 && x1 < PI / 2) abs(result)
-            else -abs(result)
+            result
         }
     }
-}
 
 /**
  * Сложная (4 балла)
