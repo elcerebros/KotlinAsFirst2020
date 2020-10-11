@@ -206,12 +206,12 @@ fun polynom(p: List<Int>, x: Int): Int {
  * Обратите внимание, что данная функция должна изменять содержание списка list, а не его копии.
  */
 fun accumulate(list: MutableList<Int>): MutableList<Int> {
+    var current = list.sum()
+    var x = 0
     for (i in list.size - 1 downTo 1) {
-        var x = list.first()
-        for (j in 1..i) {
-            x += list[j]
-        }
-        list[i] = x
+        x = list[i]
+        list[i] = current
+        current -= x
     }
     return list
 }

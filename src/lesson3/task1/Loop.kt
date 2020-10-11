@@ -102,8 +102,8 @@ fun digitNumber(n: Int): Int {
  * Найти число Фибоначчи из ряда 1, 1, 2, 3, 5, 8, 13, 21, ... с номером n.
  * Ряд Фибоначчи определён следующим образом: fib(1) = 1, fib(2) = 1, fib(n+2) = fib(n) + fib(n+1)
  */
-fun fib(n: Int): Int {
-    return if (n <= 2) 1
+fun fib(n: Int) =
+    if (n <= 2) 1
     else {
         var num1 = 1
         var num2 = 1
@@ -115,7 +115,6 @@ fun fib(n: Int): Int {
         }
         num3
     }
-}
 
 /**
  * Простая (2 балла)
@@ -140,7 +139,7 @@ fun minDivisor(n: Int): Int {
 fun maxDivisor(n: Int): Int {
     var max = 0
     if (isPrime(n)) return 1
-    for (i in 2..n / 2) {
+    for (i in 2..sqrt(n.toDouble()).toInt()) {
         if (n % i == 0 && i > max) max = i
     }
     return max
@@ -341,8 +340,6 @@ fun squareSequenceDigit(n: Int): Int {
     val result = mutableListOf<Int>()
     var a = 1 //номер цифры
     var i = 1 //номер числа, возводимого в квадрат
-    var k = 0
-    var current = 1
     while (n != a) {
         when {
             n < 4 -> {
@@ -351,8 +348,8 @@ fun squareSequenceDigit(n: Int): Int {
                 i++
             }
             else -> {
-                current = sqr(i)
-                k = digitNumber(current)
+                var current = sqr(i)
+                val k = digitNumber(current)
                 for (j in a + k downTo a) {
                     result.add(current % 10)
                     if (j == n) return result[j - 1]
@@ -363,7 +360,7 @@ fun squareSequenceDigit(n: Int): Int {
             }
         }
     }
-    return result[n]
+    return result[n - 1]
 }
 
 
