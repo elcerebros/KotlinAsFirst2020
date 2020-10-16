@@ -154,9 +154,9 @@ fun mean(list: List<Double>) = if (list.isEmpty()) 0.0 else list.sum() / list.si
  * Обратите внимание, что данная функция должна изменять содержание списка list, а не его копии.
  */
 fun center(list: MutableList<Double>): MutableList<Double> {
-    val x = list.sum() / list.size
+    val x = mean(list)
     if (list.isEmpty()) return list
-    for (i in 0 until list.size) {
+    for (i in list.indices) {
         list[i] -= x
     }
     return list
@@ -206,12 +206,11 @@ fun polynom(p: List<Int>, x: Int): Int {
  * Обратите внимание, что данная функция должна изменять содержание списка list, а не его копии.
  */
 fun accumulate(list: MutableList<Int>): MutableList<Int> {
-    var current = list.sum()
-    var x = 0
-    for (i in list.size - 1 downTo 1) {
-        x = list[i]
+    if (list.isEmpty()) return list
+    var current = list.first()
+    for (i in 1 until list.size) {
+        current += list[i]
         list[i] = current
-        current -= x
     }
     return list
 }
@@ -226,17 +225,17 @@ fun accumulate(list: MutableList<Int>): MutableList<Int> {
 fun factorize(n: Int): List<Int> {
     val result = mutableListOf<Int>()
     var number = n
+    var i = 2
     if (isPrime(n)) {
         result.add(n)
         return result
     }
-    for (i in 2..sqrt(n.toDouble()).toInt() + 1) {
-        if (isPrime(i)) {
-            while (number % i == 0) {
-                result.add(i)
-                number /= i
-            }
+    while (number > 1) {
+        while (number % i == 0) {
+            result.add(i)
+            number /= i
         }
+        i++
     }
     return result.sorted()
 }
@@ -248,22 +247,7 @@ fun factorize(n: Int): List<Int> {
  * Результат разложения вернуть в виде строки, например 75 -> 3*5*5
  * Множители в результирующей строке должны располагаться по возрастанию.
  */
-fun factorizeToString(n: Int): String {
-    val result = mutableListOf<Int>()
-    var number = n
-    var i = 2
-    if (isPrime(n)) return n.toString()
-    while (number > 1) {
-        if (isPrime(i)) {
-            while (number % i == 0) {
-                result.add(i)
-                number /= i
-            }
-            i++
-        } else i++
-    }
-    return result.joinToString(separator = "*")
-}
+fun factorizeToString(n: Int) = factorize(n).joinToString(separator = "*")
 
 /**
  * Средняя (3 балла)
@@ -274,16 +258,12 @@ fun factorizeToString(n: Int): String {
  */
 fun convert(n: Int, base: Int): List<Int> {
     val result = mutableListOf<Int>()
-    val resultRevert = mutableListOf<Int>()
     var number = n
     while (number > 0) {
         result.add(number % base)
         number /= base
     }
-    for (i in result.size - 1 downTo 0) {
-        resultRevert.add(result[i])
-    }
-    return resultRevert
+    return result.asReversed()
 }
 
 /**

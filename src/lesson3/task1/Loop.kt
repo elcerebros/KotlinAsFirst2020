@@ -25,17 +25,6 @@ fun factorial(n: Int): Double {
     return result
 }
 
-
-fun countDigits(x: Int): Int {
-    var number = x
-    var k = 0
-    while (number > 0) {
-        k++
-        number /= 10
-    }
-    return k
-}
-
 /**
  * Пример
  *
@@ -137,10 +126,13 @@ fun minDivisor(n: Int): Int {
  * Для заданного числа n > 1 найти максимальный делитель, меньший n
  */
 fun maxDivisor(n: Int): Int {
-    var max = 0
     if (isPrime(n)) return 1
-    for (i in 2..sqrt(n.toDouble()).toInt()) {
-        if (n % i == 0 && i > max) max = i
+    var max = 0
+    for (i in n - 1 downTo sqrt(n.toDouble()).toInt()) {
+        if (n % i == 0) {
+            max = i
+            break
+        }
     }
     return max
 }
@@ -223,11 +215,11 @@ fun squareBetweenExists(m: Int, n: Int): Boolean {
 fun revert(n: Int): Int {
     var number = n
     var result = 0
-    var k = digitNumber(n) //счетчик разрядов числа
-    var dec = pow(10, k) //степень десятки в числе
+    var k = digitNumber(n)
+    var dec = pow(10, k - 1) //степень десятки в числе
     while (k > 0) {
-        dec /= 10
         result += (number % 10) * dec
+        dec /= 10
         number /= 10
         k -= 1
     }
@@ -243,7 +235,7 @@ fun revert(n: Int): Int {
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
-fun isPalindrome(n: Int) = n == revert(n)
+fun isPalindrome(n: Int) = revert(n) == n
 
 
 /**
@@ -337,30 +329,28 @@ fun cos(x: Double, eps: Double) =
  */
 
 fun squareSequenceDigit(n: Int): Int {
-    val result = mutableListOf<Int>()
-    var a = 1 //номер цифры
-    var i = 1 //номер числа, возводимого в квадрат
+    val result = mutableListOf(0)
+    var a = 0 //номер цифры + 1
+    var i = 1 //число, возводимое в квадрат
     while (n != a) {
-        when {
-            n < 4 -> {
-                result.add(sqr(i))
-                a++
-                i++
+        if (i > 4) {
+            var current = revert(sqr(i))
+            val k = digitNumber(current)
+            for (j in a downTo a - k) {
+                result.add(current % 10)
+                current /= 10
+                if (n == j) return result[j]
             }
-            else -> {
-                var current = sqr(i)
-                val k = digitNumber(current)
-                for (j in a + k downTo a) {
-                    result.add(current % 10)
-                    if (j == n) return result[j - 1]
-                    current /= 10
-                }
-                i++
-                a += k
-            }
+            a += k
+            i++
+        } else {
+            a += 1
+            result.add(sqr(i))
+            if (n == a) return result[a]
+            i++
         }
     }
-    return result[n - 1]
+    return 1
 }
 
 
@@ -380,7 +370,7 @@ fun fibSequenceDigit(n: Int): Int {
     var num2 = 1
     var num3 = 0
     if (n <= 2) return 1
-    else while (n !== k) {
+    else while (n != k) {
         num3 = num1 + num2
         x = revert(num3)
         while (x > 0) {
