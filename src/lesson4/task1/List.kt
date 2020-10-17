@@ -20,6 +20,16 @@ fun pow(x: Int, n: Int): Int {
     return result
 }
 
+fun digitNumber(n: Int): Int {
+    var count = 0
+    var number = n
+    do {
+        count++
+        number /= 10
+    } while (kotlin.math.abs(number) > 0)
+    return count
+}
+
 /**
  * Пример
  *
@@ -310,10 +320,10 @@ fun decimalFromString(str: String, base: Int): Int = TODO()
  * 90 = XC, 100 = C, 400 = CD, 500 = D, 900 = CM, 1000 = M.
  * Например: 23 = XXIII, 44 = XLIV, 100 = C
  */
-fun roman(n: Int): String = TODO()    /*
+fun roman(n: Int): String {
     val resultList = mutableListOf<String>()
     val alphabet = mutableListOf<String>()
-    var k = digitNumber(n)
+    for (i in 0..1000) alphabet.add("0")
     alphabet[1] = "I"
     alphabet[2] = "II"
     alphabet[3] = "III"
@@ -328,15 +338,63 @@ fun roman(n: Int): String = TODO()    /*
     alphabet[400] = "CD"
     alphabet[500] = "D"
     alphabet[900] = "CM"
-    alphabet[1000] = "C"
-    while (n > 0) {
-        resultList.add(alphabet[n / pow(10, k)])
-        k -= 1
-        n %= pow(10, k)
+    alphabet[1000] = "M"
+    if (n / 1000 > 0) {
+        for (i in 1..n / 1000) {
+            resultList.add(alphabet[1000])
+        }
     }
-    return "0"
-     */
-
+    if ((n % 1000) / 100 > 0) {
+        when {
+            ((n % 1000) / 100) % 5 in 1..3 -> {
+                if ((n % 1000) / 100 > 5) {
+                    resultList.add(alphabet[500])
+                }
+                for (i in 1..((n % 1000) / 100) % 5) {
+                    resultList.add(alphabet[100])
+                }
+            }
+            ((n % 1000) / 100) % 5 == 4 -> {
+                if ((n % 1000) / 100 == 4) resultList.add(alphabet[400])
+                else resultList.add(alphabet[900])
+            }
+        }
+    }
+    if (n % 100 > 0) {
+        when {
+            ((n % 100) / 10) % 5 in 1..3 -> {
+                if ((n % 100) / 10 > 5) {
+                    resultList.add(alphabet[50])
+                }
+                for (i in 1..((n % 100) / 10) % 5) {
+                    resultList.add(alphabet[10])
+                }
+            }
+            ((n % 100) / 10) % 5 == 4 -> {
+                if ((n % 100) / 10 == 4) resultList.add(alphabet[40])
+                else resultList.add(alphabet[90])
+            }
+        }
+    }
+    if (n % 10 > 0) {
+        when {
+            n % 10 % 5 in 1..3 -> {
+                if (n % 10 > 5) {
+                    resultList.add(alphabet[5])
+                }
+                for (i in 1..(n % 10) % 5) {
+                    resultList.add(alphabet[1])
+                }
+            }
+            (n % 10) % 5 == 4 -> {
+                if (n % 10 == 4) {
+                    resultList.add(alphabet[4])
+                } else resultList.add(alphabet[9])
+            }
+        }
+    }
+    return resultList.joinToString(separator = "")
+}
 
 /**
  * Очень сложная (7 баллов)
