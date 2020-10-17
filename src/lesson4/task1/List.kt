@@ -347,7 +347,7 @@ fun roman(n: Int): String {
     if ((n % 1000) / 100 > 0) {
         when {
             ((n % 1000) / 100) % 5 in 1..3 -> {
-                if ((n % 1000) / 100 > 5) {
+                if ((n % 1000) / 100 >= 5) {
                     resultList.add(alphabet[500])
                 }
                 for (i in 1..((n % 1000) / 100) % 5) {
@@ -358,12 +358,15 @@ fun roman(n: Int): String {
                 if ((n % 1000) / 100 == 4) resultList.add(alphabet[400])
                 else resultList.add(alphabet[900])
             }
+            (n % 1000) / 100 == 5 -> {
+                resultList.add(alphabet[500])
+            }
         }
     }
     if (n % 100 > 0) {
         when {
             ((n % 100) / 10) % 5 in 1..3 -> {
-                if ((n % 100) / 10 > 5) {
+                if ((n % 100) / 10 >= 5) {
                     resultList.add(alphabet[50])
                 }
                 for (i in 1..((n % 100) / 10) % 5) {
@@ -374,12 +377,15 @@ fun roman(n: Int): String {
                 if ((n % 100) / 10 == 4) resultList.add(alphabet[40])
                 else resultList.add(alphabet[90])
             }
+            (n % 100) / 10 == 5 -> {
+                resultList.add(alphabet[50])
+            }
         }
     }
     if (n % 10 > 0) {
         when {
             n % 10 % 5 in 1..3 -> {
-                if (n % 10 > 5) {
+                if (n % 10 >= 5) {
                     resultList.add(alphabet[5])
                 }
                 for (i in 1..(n % 10) % 5) {
@@ -390,6 +396,9 @@ fun roman(n: Int): String {
                 if (n % 10 == 4) {
                     resultList.add(alphabet[4])
                 } else resultList.add(alphabet[9])
+            }
+            n % 10 == 5 -> {
+                resultList.add(alphabet[5])
             }
         }
     }
