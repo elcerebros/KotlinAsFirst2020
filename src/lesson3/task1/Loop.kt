@@ -131,10 +131,10 @@ fun maxDivisor(n: Int): Int {
     for (i in n - 1 downTo sqrt(n.toDouble()).toInt()) {
         if (n % i == 0) {
             max = i
-            break
+            return max
         }
     }
-    return max
+    return 0
 }
 
 /**
@@ -171,10 +171,12 @@ fun collatzSteps(x: Int): Int {
  * минимальное число k, которое делится и на m и на n без остатка
  */
 fun lcm(m: Int, n: Int): Int {
-    for (i in min(m, n)..m * n) {
-        if (i % m == 0 && i % n == 0) return i
+    var i = max(m, n)
+    if (isPrime(n) && isPrime(m) && m != n) return m * n
+    while (i % n != 0 || i % m != 0) {
+        i += n
     }
-    return 0
+    return i
 }
 
 /**

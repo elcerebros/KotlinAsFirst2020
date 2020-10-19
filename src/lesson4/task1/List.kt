@@ -4,6 +4,7 @@ package lesson4.task1
 
 import lesson1.task1.discriminant
 import lesson1.task1.sqr
+import lesson3.task1.digitNumber
 import lesson3.task1.isPrime
 import kotlin.math.sqrt
 
@@ -18,16 +19,6 @@ fun pow(x: Int, n: Int): Int {
         result *= x
     }
     return result
-}
-
-fun digitNumber(n: Int): Int {
-    var count = 0
-    var number = n
-    do {
-        count++
-        number /= 10
-    } while (kotlin.math.abs(number) > 0)
-    return count
 }
 
 /**
@@ -165,7 +156,6 @@ fun mean(list: List<Double>) = if (list.isEmpty()) 0.0 else list.sum() / list.si
  */
 fun center(list: MutableList<Double>): MutableList<Double> {
     val x = mean(list)
-    if (list.isEmpty()) return list
     for (i in list.indices) {
         list[i] -= x
     }
@@ -181,7 +171,6 @@ fun center(list: MutableList<Double>): MutableList<Double> {
  */
 fun times(a: List<Int>, b: List<Int>): Int {
     var c = 0
-    if (a.isEmpty() || b.isEmpty()) return 0
     for (i in a.indices) {
         c += a[i] * b[i]
     }
@@ -198,7 +187,6 @@ fun times(a: List<Int>, b: List<Int>): Int {
  */
 fun polynom(p: List<Int>, x: Int): Int {
     var result = 0
-    if (p.isEmpty()) return 0
     for (i in p.indices) {
         result += p[i] * pow(x, i)
     }
@@ -320,7 +308,7 @@ fun decimalFromString(str: String, base: Int): Int = TODO()
  * 90 = XC, 100 = C, 400 = CD, 500 = D, 900 = CM, 1000 = M.
  * Например: 23 = XXIII, 44 = XLIV, 100 = C
  */
-fun roman(n: Int): String {
+fun romanCreator(n: Int): String {
     val resultList = mutableListOf<String>()
     val alphabet = mutableListOf<String>()
     for (i in 0..1000) alphabet.add("0")
@@ -339,70 +327,44 @@ fun roman(n: Int): String {
     alphabet[500] = "D"
     alphabet[900] = "CM"
     alphabet[1000] = "M"
-    if (n / 1000 > 0) {
-        for (i in 1..n / 1000) {
-            resultList.add(alphabet[1000])
-        }
+    val k = digitNumber(n)
+    val dec = pow(10, k - 1)
+    val x = when (k) {
+        3 -> (n % 1000) / 100
+        2 -> (n % 100) / 10
+        else -> n % 10
     }
-    if ((n % 1000) / 100 > 0) {
-        when {
-            ((n % 1000) / 100) % 5 in 1..3 -> {
-                if ((n % 1000) / 100 >= 5) {
-                    resultList.add(alphabet[500])
-                }
-                for (i in 1..((n % 1000) / 100) % 5) {
-                    resultList.add(alphabet[100])
-                }
+    when {
+        x % 5 in 1..3 -> {
+            if (x >= 5) {
+                resultList.add(alphabet[5 * dec])
             }
-            ((n % 1000) / 100) % 5 == 4 -> {
-                if ((n % 1000) / 100 == 4) resultList.add(alphabet[400])
-                else resultList.add(alphabet[900])
-            }
-            (n % 1000) / 100 == 5 -> {
-                resultList.add(alphabet[500])
+            for (i in 1..x % 5) {
+                resultList.add(alphabet[1 * dec])
             }
         }
-    }
-    if (n % 100 > 0) {
-        when {
-            ((n % 100) / 10) % 5 in 1..3 -> {
-                if ((n % 100) / 10 >= 5) {
-                    resultList.add(alphabet[50])
-                }
-                for (i in 1..((n % 100) / 10) % 5) {
-                    resultList.add(alphabet[10])
-                }
-            }
-            ((n % 100) / 10) % 5 == 4 -> {
-                if ((n % 100) / 10 == 4) resultList.add(alphabet[40])
-                else resultList.add(alphabet[90])
-            }
-            (n % 100) / 10 == 5 -> {
-                resultList.add(alphabet[50])
-            }
+        x % 5 == 4 -> {
+            if (x == 4) resultList.add(alphabet[4 * dec])
+            else resultList.add(alphabet[9 * dec])
         }
-    }
-    if (n % 10 > 0) {
-        when {
-            n % 10 % 5 in 1..3 -> {
-                if (n % 10 >= 5) {
-                    resultList.add(alphabet[5])
-                }
-                for (i in 1..(n % 10) % 5) {
-                    resultList.add(alphabet[1])
-                }
-            }
-            (n % 10) % 5 == 4 -> {
-                if (n % 10 == 4) {
-                    resultList.add(alphabet[4])
-                } else resultList.add(alphabet[9])
-            }
-            n % 10 == 5 -> {
-                resultList.add(alphabet[5])
-            }
+        x == 5 -> {
+            resultList.add(alphabet[5 * dec])
         }
     }
     return resultList.joinToString(separator = "")
+}
+
+fun roman(n: Int): String {
+    var result = ""
+    if (n / 1000 > 0) {
+        for (i in 1..n / 1000) {
+            result += "M"
+        }
+    }
+    if ((n % 1000) / 100 > 0) result += romanCreator(n % 1000)
+    if ((n % 100) / 10 > 0) result += romanCreator(n % 100)
+    if (n % 10 > 0) result += romanCreator(n % 10)
+    return result
 }
 
 /**
