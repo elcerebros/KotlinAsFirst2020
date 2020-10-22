@@ -127,11 +127,9 @@ fun minDivisor(n: Int): Int {
  */
 fun maxDivisor(n: Int): Int {
     if (isPrime(n)) return 1
-    var max = 0
     for (i in n - 1 downTo sqrt(n.toDouble()).toInt()) {
         if (n % i == 0) {
-            max = i
-            return max
+            return i
         }
     }
     return 0
@@ -171,12 +169,18 @@ fun collatzSteps(x: Int): Int {
  * минимальное число k, которое делится и на m и на n без остатка
  */
 fun lcm(m: Int, n: Int): Int {
-    var i = max(m, n)
+    val x = m * n
+    var x1 = m
+    var x2 = n
     if (isPrime(n) && isPrime(m) && m != n) return m * n
-    while (i % n != 0 || i % m != 0) {
-        i += n
+    while (x1 != 0 && x2 != 0) {
+        if (x1 > x2) {
+            x1 %= x2
+        } else {
+            x2 %= x1
+        }
     }
-    return i
+    return x / (x1 + x2)
 }
 
 /**
@@ -335,7 +339,7 @@ fun squareSequenceDigit(n: Int): Int {
     var a = 0 //номер цифры + 1
     var i = 1 //число, возводимое в квадрат
     while (n != a) {
-        if (i > 4) {
+        if (i >= 4) {
             var current = revert(sqr(i))
             val k = digitNumber(current)
             for (j in a downTo a - k) {

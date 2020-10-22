@@ -257,6 +257,7 @@ fun factorizeToString(n: Int) = factorize(n).joinToString(separator = "*")
 fun convert(n: Int, base: Int): List<Int> {
     val result = mutableListOf<Int>()
     var number = n
+    if (n == 0) return listOf(0)
     while (number > 0) {
         result.add(number % base)
         number /= base
@@ -311,22 +312,19 @@ fun decimalFromString(str: String, base: Int): Int = TODO()
 fun romanCreator(n: Int): String {
     val resultList = mutableListOf<String>()
     val alphabet = mutableListOf<String>()
-    for (i in 0..1000) alphabet.add("0")
+    for (i in 0..400) alphabet.add("0")
     alphabet[1] = "I"
-    alphabet[2] = "II"
-    alphabet[3] = "III"
-    alphabet[4] = "IV"
-    alphabet[5] = "V"
-    alphabet[9] = "IX"
+    alphabet[2] = "IV"
+    alphabet[3] = "V"
+    alphabet[4] = "IX"
     alphabet[10] = "X"
-    alphabet[40] = "XL"
-    alphabet[50] = "L"
-    alphabet[90] = "XC"
+    alphabet[20] = "XL"
+    alphabet[30] = "L"
+    alphabet[40] = "XC"
     alphabet[100] = "C"
-    alphabet[400] = "CD"
-    alphabet[500] = "D"
-    alphabet[900] = "CM"
-    alphabet[1000] = "M"
+    alphabet[200] = "CD"
+    alphabet[300] = "D"
+    alphabet[400] = "CM"
     val k = digitNumber(n)
     val dec = pow(10, k - 1)
     val x = when (k) {
@@ -337,18 +335,18 @@ fun romanCreator(n: Int): String {
     when {
         x % 5 in 1..3 -> {
             if (x >= 5) {
-                resultList.add(alphabet[5 * dec])
+                resultList.add(alphabet[3 * dec])
             }
             for (i in 1..x % 5) {
                 resultList.add(alphabet[1 * dec])
             }
         }
         x % 5 == 4 -> {
-            if (x == 4) resultList.add(alphabet[4 * dec])
-            else resultList.add(alphabet[9 * dec])
+            if (x == 4) resultList.add(alphabet[2 * dec])
+            else resultList.add(alphabet[4 * dec])
         }
         x == 5 -> {
-            resultList.add(alphabet[5 * dec])
+            resultList.add(alphabet[3 * dec])
         }
     }
     return resultList.joinToString(separator = "")
