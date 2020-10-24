@@ -312,27 +312,33 @@ fun decimalFromString(str: String, base: Int): Int = TODO()
 fun romanCreator(n: Int): String {
     val resultList = mutableListOf<String>()
     val alphabet = mutableListOf<String>()
-    for (i in 0..400) alphabet.add("0")
+    for (i in 0..100) alphabet.add("0")
     alphabet[1] = "I"
     alphabet[2] = "IV"
     alphabet[3] = "V"
     alphabet[4] = "IX"
-    alphabet[10] = "X"
-    alphabet[20] = "XL"
-    alphabet[30] = "L"
-    alphabet[40] = "XC"
-    alphabet[100] = "C"
-    alphabet[200] = "CD"
-    alphabet[300] = "D"
-    alphabet[400] = "CM"
+    alphabet[5] = "X"
+    alphabet[10] = "XL"
+    alphabet[15] = "L"
+    alphabet[20] = "XC"
+    alphabet[25] = "C"
+    alphabet[50] = "CD"
+    alphabet[75] = "D"
+    alphabet[100] = "CM"
     val k = digitNumber(n)
-    val dec = pow(10, k - 1)
+    val dec = pow(5, k - 1)
     val x = when (k) {
+        4 -> n
         3 -> (n % 1000) / 100
         2 -> (n % 100) / 10
         else -> n % 10
     }
     when {
+        x / 1000 > 0 -> {
+            for (i in 1..x / 1000) {
+                resultList.add("M")
+            }
+        }
         x % 5 in 1..3 -> {
             if (x >= 5) {
                 resultList.add(alphabet[3 * dec])
@@ -354,14 +360,13 @@ fun romanCreator(n: Int): String {
 
 fun roman(n: Int): String {
     var result = ""
-    if (n / 1000 > 0) {
-        for (i in 1..n / 1000) {
-            result += "M"
-        }
+    var num = n
+    var k = digitNumber(n) - 1
+    while (num > 0) {
+        result += romanCreator(num)
+        num %= pow(10, k)
+        k -= 1
     }
-    if ((n % 1000) / 100 > 0) result += romanCreator(n % 1000)
-    if ((n % 100) / 10 > 0) result += romanCreator(n % 100)
-    if (n % 10 > 0) result += romanCreator(n % 10)
     return result
 }
 

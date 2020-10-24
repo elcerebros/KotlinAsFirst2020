@@ -337,24 +337,20 @@ fun cos(x: Double, eps: Double) =
 fun squareSequenceDigit(n: Int): Int {
     val result = mutableListOf(0)
     var a = 0 //номер цифры + 1
-    var i = 1 //число, возводимое в квадрат
+    var i = 0 //число, возводимое в квадрат
     while (n != a) {
-        if (i >= 4) {
-            var current = revert(sqr(i))
-            val k = digitNumber(current)
-            for (j in a downTo a - k) {
-                result.add(current % 10)
-                current /= 10
-                if (n == j) return result[j]
-            }
-            a += k
-            i++
-        } else {
-            a += 1
-            result.add(sqr(i))
+        var current = sqr(i)
+        var k = digitNumber(current) - 1
+        var x = current
+        while (current > 0) {
+            a++
+            x = current / pow(10, k)
+            result.add(x)
             if (n == a) return result[a]
-            i++
+            current %= pow(10, k)
+            k -= 1
         }
+        i++
     }
     return 1
 }
@@ -372,6 +368,7 @@ fun squareSequenceDigit(n: Int): Int {
 fun fibSequenceDigit(n: Int): Int {
     var k = 2  //счетчик количества цифр в ряде чисел
     var x = 0  //текущее число
+    var x1 = 0
     var num1 = 1
     var num2 = 1
     var num3 = 0
@@ -379,11 +376,14 @@ fun fibSequenceDigit(n: Int): Int {
     else while (n != k) {
         num3 = num1 + num2
         x = revert(num3)
-        while (x > 0) {
-            k += 1
-            if (k == n) return x % 10
-            x /= 10
-        }
+        x1 = digitNumber(num3)
+        if (k + x1 >= n) {
+            while (x > 0) {
+                k += 1
+                if (k == n) return x % 10
+                x /= 10
+            }
+        } else k += x1
         num1 = num2
         num2 = num3
     }
