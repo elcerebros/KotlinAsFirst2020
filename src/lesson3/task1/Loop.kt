@@ -341,10 +341,9 @@ fun squareSequenceDigit(n: Int): Int {
     while (n != a) {
         var current = sqr(i)
         var k = digitNumber(current) - 1
-        var x = current
         while (current > 0) {
             a++
-            x = current / pow(10, k)
+            val x = current / pow(10, k)
             result.add(x)
             if (n == a) return result[a]
             current %= pow(10, k)
@@ -366,17 +365,14 @@ fun squareSequenceDigit(n: Int): Int {
  * Использовать операции со строками в этой задаче запрещается.
  */
 fun fibSequenceDigit(n: Int): Int {
-    var k = 2  //счетчик количества цифр в ряде чисел
-    var x = 0  //текущее число
-    var x1 = 0
+    var k = 2
     var num1 = 1
     var num2 = 1
-    var num3 = 0
     if (n <= 2) return 1
     else while (n != k) {
-        num3 = num1 + num2
-        x = revert(num3)
-        x1 = digitNumber(num3)
+        val num3 = num1 + num2
+        var x = revert(num3)
+        val x1 = digitNumber(num3)
         if (k + x1 >= n) {
             while (x > 0) {
                 k += 1
