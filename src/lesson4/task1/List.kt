@@ -361,11 +361,9 @@ fun romanCreator(n: Int): String {
 fun roman(n: Int): String {
     var result = ""
     var num = n
-    var k = digitNumber(n) - 1
     while (num > 0) {
         result += romanCreator(num)
-        num %= pow(10, k)
-        k -= 1
+        num %= pow(10, digitNumber(num) - 1)
     }
     return result
 }

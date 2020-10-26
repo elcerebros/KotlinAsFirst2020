@@ -240,6 +240,7 @@ class Tests {
         assertEquals(0, squareSequenceDigit(17))
         assertEquals(9, squareSequenceDigit(27))
         assertEquals(0, squareSequenceDigit(208580))
+        assertEquals(6, squareSequenceDigit(26))
     }
 
     @Test
@@ -252,5 +253,6 @@ class Tests {
         assertEquals(5, fibSequenceDigit(14))
         assertEquals(2, fibSequenceDigit(20))
         assertEquals(9, fibSequenceDigit(29))
+        assertEquals(3, fibSequenceDigit(234))
     }
 }

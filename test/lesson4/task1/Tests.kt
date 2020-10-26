@@ -229,6 +229,7 @@ class Tests {
         assertEquals("DCXCIV", roman(694))
         assertEquals("XLIX", roman(49))
         assertEquals("DCLIV", roman(654))
+        assertEquals("MLXXV", roman(1075))
     }
 
     @Test

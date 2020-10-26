@@ -337,21 +337,28 @@ fun cos(x: Double, eps: Double) =
 fun squareSequenceDigit(n: Int): Int {
     val result = mutableListOf(0)
     var a = 0 //номер цифры + 1
-    var i = 0 //число, возводимое в квадрат
+    var i = 1 //число, возводимое в квадрат
     while (n != a) {
         var current = sqr(i)
-        var k = digitNumber(current) - 1
-        while (current > 0) {
-            a++
-            val x = current / pow(10, k)
-            result.add(x)
-            if (n == a) return result[a]
-            current %= pow(10, k)
-            k -= 1
+        val k = digitNumber(current)
+        var s = k
+        var dec = 1
+        for (j in a..a + k) result.add(0)
+        while (s > 0) {
+            if (current % pow(10, dec) == 0) {
+                result[a + s] = 0
+            } else {
+                result[a + s] = (current % pow(10, dec)) / pow(10, dec - 1)
+            }
+            if (n == a + s) return result[a + s]
+            current -= current % pow(10, dec)
+            s -= 1
+            dec++
         }
+        a += k
         i++
     }
-    return 1
+    return 0
 }
 
 
@@ -365,21 +372,30 @@ fun squareSequenceDigit(n: Int): Int {
  * Использовать операции со строками в этой задаче запрещается.
  */
 fun fibSequenceDigit(n: Int): Int {
-    var k = 2
+    val result = mutableListOf(0, 0)
+    var a = 2
     var num1 = 1
     var num2 = 1
     if (n <= 2) return 1
-    else while (n != k) {
+    else while (n != a) {
         val num3 = num1 + num2
-        var x = revert(num3)
-        val x1 = digitNumber(num3)
-        if (k + x1 >= n) {
-            while (x > 0) {
-                k += 1
-                if (k == n) return x % 10
-                x /= 10
+        var current = num3
+        val k = digitNumber(current)
+        var s = k
+        var dec = 1
+        for (j in a..a + k) result.add(0)
+        while (s > 0) {
+            if (current % pow(10, dec) == 0) {
+                result[a + s] = 0
+            } else {
+                result[a + s] = (current % pow(10, dec)) / pow(10, dec - 1)
             }
-        } else k += x1
+            if (n == a + s) return result[a + s]
+            current -= current % pow(10, dec)
+            s -= 1
+            dec++
+        }
+        a += k
         num1 = num2
         num2 = num3
     }
