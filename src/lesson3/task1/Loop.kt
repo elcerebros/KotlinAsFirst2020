@@ -61,11 +61,11 @@ fun isPerfect(n: Int): Boolean {
  * Найти число вхождений цифры m в число n
  */
 fun digitCountInNumber(n: Int, m: Int): Int =
-    when {
-        n == m -> 1
-        n < 10 -> 0
-        else -> digitCountInNumber(n / 10, m) + digitCountInNumber(n % 10, m)
-    }
+        when {
+            n == m -> 1
+            n < 10 -> 0
+            else -> digitCountInNumber(n / 10, m) + digitCountInNumber(n % 10, m)
+        }
 
 /**
  * Простая (2 балла)
@@ -92,18 +92,18 @@ fun digitNumber(n: Int): Int {
  * Ряд Фибоначчи определён следующим образом: fib(1) = 1, fib(2) = 1, fib(n+2) = fib(n) + fib(n+1)
  */
 fun fib(n: Int) =
-    if (n <= 2) 1
-    else {
-        var num1 = 1
-        var num2 = 1
-        var num3 = 0
-        for (i in 3..n) {
-            num3 = num1 + num2
-            num1 = num2
-            num2 = num3
+        if (n <= 2) 1
+        else {
+            var num1 = 1
+            var num2 = 1
+            var num3 = 0
+            for (i in 3..n) {
+                num3 = num1 + num2
+                num1 = num2
+                num2 = num3
+            }
+            num3
         }
-        num3
-    }
 
 /**
  * Простая (2 балла)
@@ -272,26 +272,26 @@ fun hasDifferentDigits(n: Int): Boolean {
  * Использовать kotlin.math.sin и другие стандартные реализации функции синуса в этой задаче запрещается.
  */
 fun sin(x: Double, eps: Double) =
-    when {
-        x % PI == 0.0 -> 0.0
-        x % (PI / 2) == 0.0 -> {
-            if (x % (2 * PI) > 0 && x % (2 * PI) < PI) 1.0
-            else -1.0
-        }
-        else -> {
-            var result = 0.0
-            val x1 = x % (2 * PI)
-            var a = eps
-            var i = 1
-            while (abs(a) >= eps) {
-                a = x1.pow(2 * i - 1) / factorial(2 * i - 1)
-                if (i % 2 != 0) result += a
-                else result -= a
-                i++
+        when {
+            x % PI == 0.0 -> 0.0
+            x % (PI / 2) == 0.0 -> {
+                if (x % (2 * PI) > 0 && x % (2 * PI) < PI) 1.0
+                else -1.0
             }
-            result
+            else -> {
+                var result = 0.0
+                val x1 = x % (2 * PI)
+                var a = eps
+                var i = 1
+                while (abs(a) >= eps) {
+                    a = x1.pow(2 * i - 1) / factorial(2 * i - 1)
+                    if (i % 2 != 0) result += a
+                    else result -= a
+                    i++
+                }
+                result
+            }
         }
-    }
 
 /**
  * Средняя (4 балла)
@@ -303,26 +303,26 @@ fun sin(x: Double, eps: Double) =
  * Использовать kotlin.math.cos и другие стандартные реализации функции косинуса в этой задаче запрещается.
  */
 fun cos(x: Double, eps: Double) =
-    when {
-        x % PI == 0.0 -> {
-            if (x % (2 * PI) < PI / 2 && x % (2 * PI) > -PI / 2) 1.0
-            else -1.0
-        }
-        x % (PI / 2) == 0.0 -> 0.0
-        else -> {
-            var result = 0.0
-            val x1 = x % (2 * PI)
-            var a = eps
-            var i = 0
-            while (abs(a) >= eps) {
-                a = x1.pow(2 * i) / factorial(2 * i)
-                if (i % 2 == 0) result += a
-                else result -= a
-                i++
+        when {
+            x % PI == 0.0 -> {
+                if (x % (2 * PI) < PI / 2 && x % (2 * PI) > -PI / 2) 1.0
+                else -1.0
             }
-            result
+            x % (PI / 2) == 0.0 -> 0.0
+            else -> {
+                var result = 0.0
+                val x1 = x % (2 * PI)
+                var a = eps
+                var i = 0
+                while (abs(a) >= eps) {
+                    a = x1.pow(2 * i) / factorial(2 * i)
+                    if (i % 2 == 0) result += a
+                    else result -= a
+                    i++
+                }
+                result
+            }
         }
-    }
 
 /**
  * Сложная (4 балла)
@@ -335,7 +335,7 @@ fun cos(x: Double, eps: Double) =
  */
 
 fun squareSequenceDigit(n: Int): Int {
-    val result = mutableListOf(0)
+    var result = 0
     var a = 0 //номер цифры + 1
     var i = 1 //число, возводимое в квадрат
     while (n != a) {
@@ -343,14 +343,9 @@ fun squareSequenceDigit(n: Int): Int {
         val k = digitNumber(current)
         var s = k
         var dec = 1
-        for (j in a..a + k) result.add(0)
         while (s > 0) {
-            if (current % pow(10, dec) == 0) {
-                result[a + s] = 0
-            } else {
-                result[a + s] = (current % pow(10, dec)) / pow(10, dec - 1)
-            }
-            if (n == a + s) return result[a + s]
+            result = (current % pow(10, dec)) / pow(10, dec - 1)
+            if (n == a + s) return result
             current -= current % pow(10, dec)
             s -= 1
             dec++
@@ -372,7 +367,7 @@ fun squareSequenceDigit(n: Int): Int {
  * Использовать операции со строками в этой задаче запрещается.
  */
 fun fibSequenceDigit(n: Int): Int {
-    val result = mutableListOf(0, 0)
+    var result = 0
     var a = 2
     var num1 = 1
     var num2 = 1
@@ -383,14 +378,9 @@ fun fibSequenceDigit(n: Int): Int {
         val k = digitNumber(current)
         var s = k
         var dec = 1
-        for (j in a..a + k) result.add(0)
         while (s > 0) {
-            if (current % pow(10, dec) == 0) {
-                result[a + s] = 0
-            } else {
-                result[a + s] = (current % pow(10, dec)) / pow(10, dec - 1)
-            }
-            if (n == a + s) return result[a + s]
+            result = (current % pow(10, dec)) / pow(10, dec - 1)
+            if (n == a + s) return result
             current -= current % pow(10, dec)
             s -= 1
             dec++
