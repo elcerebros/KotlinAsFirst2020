@@ -1,4 +1,4 @@
-@file:Suppress("UNUSED_PARAMETER", "ConvertCallChainIntoSequence", "TYPE_INFERENCE_ONLY_INPUT_TYPES_WARNING")
+@file:Suppress("UNUSED_PARAMETER", "ConvertCallChainIntoSequence", "TYPE_INFERENCE_ONLY_INPUT_TYPES_WARNING", "UNCHECKED_CAST")
 
 package lesson5.task1
 
@@ -200,23 +200,16 @@ fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<S
 fun averageStockPrice(stockPrices: List<Pair<String, Double>>): Map<String, Double> {
     val res = mutableMapOf<String, Double>()
     val num = mutableMapOf<String, Int>()
-    val sum = mutableMapOf<String, Double>()
+    val price = mutableMapOf<String, Double>()
+
     for ((name, cost) in stockPrices) {
-        res += (name to 0.0)
-        num += (name to 0)
-        sum[name] = 0.0
+        num[name] = (num[name] ?: 0) + 1
+        price[name] = (price[name] ?: 0.0) + cost
     }
-    /*
     for ((name, cost) in stockPrices) {
-        num[name] = 1
-        sum[name] += cost
-    }
-    for ((name, cost) in res) {
-        res[name] = sum[name] / num[name]
+        res[name] = price[name]!! / num[name]!!
     }
 
-
-     */
     return res
 }
 
@@ -236,6 +229,7 @@ fun averageStockPrice(stockPrices: List<Pair<String, Double>>): Map<String, Doub
  *   ) -> "Мария"
  */
 fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): String? = TODO()
+
 
 /**
  * Средняя (3 балла)
