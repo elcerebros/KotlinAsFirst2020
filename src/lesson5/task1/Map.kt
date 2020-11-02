@@ -229,7 +229,17 @@ fun averageStockPrice(stockPrices: List<Pair<String, Double>>): Map<String, Doub
  *   ) -> "Мария"
  */
 fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): String? = TODO()
+/*
+    var min = 10000.0
+    var res = ""
+    for ((name, other) in stuff) {
+        if (other == kind)
+    }
+    return if (res == "") null
+    else res
+}
 
+    */
 
 /**
  * Средняя (3 балла)
@@ -254,7 +264,22 @@ fun canBuildFrom(chars: List<Char>, word: String): Boolean = TODO()
  * Например:
  *   extractRepeats(listOf("a", "b", "a")) -> mapOf("a" to 2)
  */
-fun extractRepeats(list: List<String>): Map<String, Int> = TODO()
+fun extractRepeats(list: List<String>): Map<String, Int> {
+    val res1 = mutableMapOf<String, Int>()
+    val res = mutableMapOf<String, Int>()
+    for (item in list) {
+        res1[item] = 0
+    }
+
+    for (item in list) {
+        res1[item] = (res1[item] ?: 0) + 1
+    }
+    for (item in list) {
+        if (res1[item] != 1) res[item] = (res1[item] ?: 0)
+    }
+
+    return res
+}
 
 /**
  * Средняя (3 балла)
