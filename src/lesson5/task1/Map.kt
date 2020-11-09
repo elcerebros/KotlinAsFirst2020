@@ -133,7 +133,7 @@ fun subtractOf(a: MutableMap<String, String>, b: Map<String, String>) {
     val nameToRemove = mutableListOf<String>()
 
     for ((x, y) in a) {
-        if (b.containsKey(x) && b.containsValue(y)) nameToRemove.add(x)
+        if (b[x] == y) nameToRemove.add(x)
     }
 
     for (name in nameToRemove) {
@@ -180,7 +180,7 @@ fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<S
             res += (name to phone)
         } else {
             if (!mapA.containsValue(phone)) {
-                res[name] += ", $phone"
+                if (phone != "") res[name] += ", $phone"
             }
         }
     }
@@ -229,17 +229,6 @@ fun averageStockPrice(stockPrices: List<Pair<String, Double>>): Map<String, Doub
  *   ) -> "Мария"
  */
 fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): String? = TODO()
-/*
-    var min = 10000.0
-    var res = ""
-    for ((name, other) in stuff) {
-        if (other == kind)
-    }
-    return if (res == "") null
-    else res
-}
-
-    */
 
 /**
  * Средняя (3 балла)
@@ -262,6 +251,7 @@ fun canBuildFrom(chars: List<Char>, word: String): Boolean = TODO()
  * не следует.
  *
  * Например:
+ *
  *   extractRepeats(listOf("a", "b", "a")) -> mapOf("a" to 2)
  */
 fun extractRepeats(list: List<String>): Map<String, Int> {
@@ -329,7 +319,38 @@ fun hasAnagrams(words: List<String>): Boolean = TODO()
  *          "GoodGnome" to setOf()
  *        )
  */
-fun propagateHandshakes(friends: Map<String, Set<String>>): Map<String, Set<String>> = TODO()
+
+fun handShakes(res: MutableMap<String, Set<String>?>, friends: Map<String, Set<String>>, name: String):
+        Set<String>? {
+    for (item in (friends[name] ?: setOf())) {
+        (res[name] ?: error("")) + friends[item] + handShakes(res, friends, item)
+    }
+
+    return res[name]
+}
+
+
+fun propagateHandshakes(friends: Map<String, Set<String>>): MutableMap<String, Set<String>?> {
+    val res = mutableMapOf<String, Set<String>?>()
+    val resSet = mutableSetOf<String>()
+    for ((person, people) in friends) {
+        resSet.add(person)
+        resSet.addAll(people)
+    }
+
+    for (item in resSet) {
+        res[item] = mutableSetOf()
+        if (friends.containsKey(item)) {
+            res[item] = (friends[item] ?: "") as Set<String>
+        }
+    }
+
+    for ((name, people) in res) {
+        (res[name] ?: error("")) + handShakes(res, friends, name)
+    }
+
+    return res
+}
 
 /**
  * Сложная (6 баллов)

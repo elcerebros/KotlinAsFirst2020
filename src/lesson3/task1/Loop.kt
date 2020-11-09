@@ -275,16 +275,17 @@ fun sin(x: Double, eps: Double) =
         when {
             x % PI == 0.0 -> 0.0
             x % (PI / 2) == 0.0 -> {
-                if (x % (2 * PI) > 0 && x % (2 * PI) < PI) 1.0
+                val x1 = x % (2 * PI)
+                if ((x1 > 0 && x1 < PI) || (x1 > -2 * PI && x1 < -PI)) 1.0
                 else -1.0
             }
             else -> {
                 var result = 0.0
-                val x1 = x % (2 * PI)
+                val x = x % (2 * PI)
                 var a = eps
                 var i = 1
                 while (abs(a) >= eps) {
-                    a = x1.pow(2 * i - 1) / factorial(2 * i - 1)
+                    a = x.pow(2 * i - 1) / factorial(2 * i - 1)
                     if (i % 2 != 0) result += a
                     else result -= a
                     i++
@@ -340,9 +341,8 @@ fun squareSequenceDigit(n: Int): Int {
     while (n != a) {
         val current = sqr(i)
         val k = digitNumber(current)
-        val s = k
         if (a + k >= n) {
-            return (current % pow(10, a + s - n + 1)) / pow(10, a + s - n)
+            return (current / pow(10, a + k - n)) % 10
         }
         a += k
         i++
@@ -369,9 +369,8 @@ fun fibSequenceDigit(n: Int): Int {
         val num3 = num1 + num2
         val current = num3
         val k = digitNumber(current)
-        val s = k
         if (a + k >= n) {
-            return (current % pow(10, a + s - n + 1)) / pow(10, a + s - n)
+            return (current / pow(10, a + k - n)) % 10
         }
         a += k
         num1 = num2

@@ -4,7 +4,6 @@ package lesson4.task1
 
 import lesson1.task1.discriminant
 import lesson1.task1.sqr
-import lesson3.task1.digitNumber
 import lesson3.task1.isPrime
 import kotlin.math.sqrt
 
@@ -27,15 +26,15 @@ fun pow(x: Int, n: Int): Int {
  * Найти все корни уравнения x^2 = y
  */
 fun sqRoots(y: Double) =
-    when {
-        y < 0 -> listOf()
-        y == 0.0 -> listOf(0.0)
-        else -> {
-            val root = sqrt(y)
-            // Результат!
-            listOf(-root, root)
+        when {
+            y < 0 -> listOf()
+            y == 0.0 -> listOf(0.0)
+            else -> {
+                val root = sqrt(y)
+                // Результат!
+                listOf(-root, root)
+            }
         }
-    }
 
 /**
  * Пример
@@ -309,61 +308,28 @@ fun decimalFromString(str: String, base: Int): Int = TODO()
  * 90 = XC, 100 = C, 400 = CD, 500 = D, 900 = CM, 1000 = M.
  * Например: 23 = XXIII, 44 = XLIV, 100 = C
  */
-fun romanCreator(n: Int): String {
-    val resultList = mutableListOf<String>()
-    val alphabet = mutableListOf<String>()
-    for (i in 0..100) alphabet.add("0")
-    alphabet[1] = "I"
-    alphabet[2] = "IV"
-    alphabet[3] = "V"
-    alphabet[4] = "IX"
-    alphabet[5] = "X"
-    alphabet[10] = "XL"
-    alphabet[15] = "L"
-    alphabet[20] = "XC"
-    alphabet[25] = "C"
-    alphabet[50] = "CD"
-    alphabet[75] = "D"
-    alphabet[100] = "CM"
-    val k = digitNumber(n)
-    val dec = pow(5, k - 1)
-    val x = when (k) {
-        4 -> n
-        3 -> (n % 1000) / 100
-        2 -> (n % 100) / 10
-        else -> n % 10
-    }
-    when {
-        x / 1000 > 0 -> {
-            for (i in 1..x / 1000) {
-                resultList.add("M")
-            }
-        }
-        x % 5 in 1..3 -> {
-            if (x >= 5) {
-                resultList.add(alphabet[3 * dec])
-            }
-            for (i in 1..x % 5) {
-                resultList.add(alphabet[1 * dec])
-            }
-        }
-        x % 5 == 4 -> {
-            if (x == 4) resultList.add(alphabet[2 * dec])
-            else resultList.add(alphabet[4 * dec])
-        }
-        x == 5 -> {
-            resultList.add(alphabet[3 * dec])
-        }
-    }
-    return resultList.joinToString(separator = "")
-}
-
 fun roman(n: Int): String {
     var result = ""
-    var num = n
-    while (num > 0) {
-        result += romanCreator(num)
-        num %= pow(10, digitNumber(num) - 1)
+    val alphabet = mutableListOf<Pair<Int, String>>()
+    alphabet.add(Pair(1000, "M"))
+    alphabet.add(Pair(900, "CM"))
+    alphabet.add(Pair(500, "D"))
+    alphabet.add(Pair(400, "CD"))
+    alphabet.add(Pair(100, "C"))
+    alphabet.add(Pair(90, "XC"))
+    alphabet.add(Pair(50, "L"))
+    alphabet.add(Pair(40, "XL"))
+    alphabet.add(Pair(10, "X"))
+    alphabet.add(Pair(9, "IX"))
+    alphabet.add(Pair(5, "V"))
+    alphabet.add(Pair(4, "IV"))
+    alphabet.add(Pair(1, "I"))
+    var x = n
+    for ((digit, num) in alphabet) {
+        val k = x / digit
+        for (i in 0 until k)
+            result += num
+        x %= digit
     }
     return result
 }
