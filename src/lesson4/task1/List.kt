@@ -309,26 +309,16 @@ fun decimalFromString(str: String, base: Int): Int = TODO()
  * Например: 23 = XXIII, 44 = XLIV, 100 = C
  */
 fun roman(n: Int): String {
-    var result = ""
-    val alphabet = mutableListOf<Pair<Int, String>>()
-    alphabet.add(Pair(1000, "M"))
-    alphabet.add(Pair(900, "CM"))
-    alphabet.add(Pair(500, "D"))
-    alphabet.add(Pair(400, "CD"))
-    alphabet.add(Pair(100, "C"))
-    alphabet.add(Pair(90, "XC"))
-    alphabet.add(Pair(50, "L"))
-    alphabet.add(Pair(40, "XL"))
-    alphabet.add(Pair(10, "X"))
-    alphabet.add(Pair(9, "IX"))
-    alphabet.add(Pair(5, "V"))
-    alphabet.add(Pair(4, "IV"))
-    alphabet.add(Pair(1, "I"))
+    var result = buildString { }
+    val alphabet = listOf<Pair<Int, String>>(Pair(1000, "M"), Pair(900, "CM"), Pair(500, "D"),
+            Pair(400, "CD"), Pair(100, "C"), Pair(90, "XC"), Pair(50, "L"), Pair(40, "XL"),
+            Pair(10, "X"), Pair(9, "IX"), Pair(5, "V"), Pair(5, "V"), Pair(4, "IV"), Pair(1, "I"))
     var x = n
     for ((digit, num) in alphabet) {
         val k = x / digit
-        for (i in 0 until k)
+        repeat(k) {
             result += num
+        }
         x %= digit
     }
     return result
