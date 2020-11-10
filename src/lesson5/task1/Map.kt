@@ -323,7 +323,7 @@ fun hasAnagrams(words: List<String>): Boolean = TODO()
 fun handShakes(res: MutableMap<String, Set<String>?>, friends: Map<String, Set<String>>, name: String):
         Set<String>? {
     for (item in (friends[name] ?: setOf())) {
-        (res[name] ?: error("")) + friends[item] + handShakes(res, friends, item)
+        (res[name] ?: error("")) + friends[name] + handShakes(res, friends, item)
     }
 
     return res[name]
@@ -339,15 +339,20 @@ fun propagateHandshakes(friends: Map<String, Set<String>>): MutableMap<String, S
     }
 
     for (item in resSet) {
-        res[item] = mutableSetOf()
+        res[item] = mutableSetOf<String>()
         if (friends.containsKey(item)) {
-            res[item] = (friends[item] ?: "") as Set<String>
+            res[item] = handShakes(res, friends, item)
         }
     }
 
+    /*
     for ((name, people) in res) {
-        (res[name] ?: error("")) + handShakes(res, friends, name)
+        for (item in people!!) {
+            (res[name] ?: error("")) + handShakes(res, friends, item)
+        }
     }
+
+     */
 
     return res
 }
