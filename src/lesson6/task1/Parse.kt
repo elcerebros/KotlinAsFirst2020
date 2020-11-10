@@ -99,7 +99,7 @@ fun dateStrToDigit(str: String): String {
         when {
             !months.containsKey(month) -> ""
             day > daysInMonth(months[month]!!, year) -> ""
-            else -> String.format("%02d.%02d.%4d", day, months[month], year)
+            else -> String.format("%02d.%02d.%d", day, months[month], year)
         }
     } catch (e: Exception) {
         ""
@@ -139,7 +139,7 @@ fun dateDigitToStr(digital: String): String {
         when {
             !months.containsKey(month) -> ""
             day > daysInMonth(month, year) -> ""
-            year / 1000 == 0 -> ""
+            date.size != 3 -> ""
             else -> String.format("%d %s %d", day, months[month], year)
         }
     } catch (e: Exception) {
