@@ -64,6 +64,9 @@ fun main() {
     }
 }
 
+fun months() = mutableMapOf("января" to 1, "февраля" to 2, "марта" to 3,
+        "апреля" to 4, "мая" to 5, "июня" to 6, "июля" to 7, "августа" to 8, "сентября" to 9,
+        "октября" to 10, "ноября" to 11, "декабря" to 12)
 
 /**
  * Средняя (4 балла)
@@ -76,35 +79,21 @@ fun main() {
  * Обратите внимание: некорректная с точки зрения календаря дата (например, 30.02.2009) считается неверными
  * входными данными.
  */
-fun dateStrToDigit(str: String): String {
-    val months = mutableMapOf<String, Int>()
-    months["января"] = 1
-    months["февраля"] = 2
-    months["марта"] = 3
-    months["апреля"] = 4
-    months["мая"] = 5
-    months["июня"] = 6
-    months["июля"] = 7
-    months["августа"] = 8
-    months["сентября"] = 9
-    months["октября"] = 10
-    months["ноября"] = 11
-    months["декабря"] = 12
-
-    return try {
-        val date = str.split(" ")
-        val day = date[0].toInt()
-        val month = date[1]
-        val year = date[2].toInt()
-        when {
-            !months.containsKey(month) -> ""
-            day > daysInMonth(months[month]!!, year) -> ""
-            else -> String.format("%02d.%02d.%d", day, months[month], year)
+fun dateStrToDigit(str: String): String =
+        try {
+            val date = str.split(" ")
+            val day = date[0].toInt()
+            val month = date[1]
+            val year = date[2].toInt()
+            when {
+                !months().containsKey(month) -> ""
+                day > daysInMonth(months()[month] ?: error(""), year) -> ""
+                else -> String.format("%02d.%02d.%d", day, months()[month], year)
+            }
+        } catch (e: Exception) {
+            ""
         }
-    } catch (e: Exception) {
-        ""
-    }
-}
+
 
 /**
  * Средняя (4 балла)
@@ -116,36 +105,30 @@ fun dateStrToDigit(str: String): String {
  * Обратите внимание: некорректная с точки зрения календаря дата (например, 30 февраля 2009) считается неверными
  * входными данными.
  */
-fun dateDigitToStr(digital: String): String {
-    val months = mutableMapOf<Int, String>()
-    months[1] = "января"
-    months[2] = "февраля"
-    months[3] = "марта"
-    months[4] = "апреля"
-    months[5] = "мая"
-    months[6] = "июня"
-    months[7] = "июля"
-    months[8] = "августа"
-    months[9] = "сентября"
-    months[10] = "октября"
-    months[11] = "ноября"
-    months[12] = "декабря"
-
-    return try {
-        val date = digital.split(".")
-        val day = date[0].toInt()
-        val month = date[1].toInt()
-        val year = date[2].toInt()
-        when {
-            !months.containsKey(month) -> ""
-            day > daysInMonth(month, year) -> ""
-            date.size != 3 -> ""
-            else -> String.format("%d %s %d", day, months[month], year)
+fun dateDigitToStr(digital: String): String =
+        try {
+            val date = digital.split(".")
+            val day = date[0].toInt()
+            val monthNum = date[1].toInt()
+            val year = date[2].toInt()
+            var monthRes = ""
+            when {
+                !months().containsValue(monthNum) -> ""
+                day > daysInMonth(monthNum, year) -> ""
+                date.size != 3 -> ""
+                else -> {
+                    for ((month, num) in months()) {
+                        if (num == monthNum) {
+                            monthRes = month
+                            break
+                        }
+                    }
+                    String.format("%d %s %d", day, monthRes, year)
+                }
+            }
+        } catch (e: Exception) {
+            ""
         }
-    } catch (e: Exception) {
-        ""
-    }
-}
 
 /**
  * Средняя (4 балла)
@@ -175,24 +158,22 @@ fun flattenPhoneNumber(phone: String): String = TODO()
  */
 fun bestLongJump(jumps: String): Int {
     val results = jumps.split(" ")
-    var max = 0
+    var max = -1
+    var num = 0
 
-    return try {
-        for (attempt in results) {
-            when (attempt) {
-                "%", "-" -> continue
-                else -> {
-                    val num = attempt.toInt()
-                    if (num > max) max = num
-                }
+    for (attempt in results) {
+        if (attempt != "%" && attempt != "-") {
+            try {
+                num = attempt.toInt()
+            } catch (e: NumberFormatException) {
+                return -1
             }
+            if (num > max) max = num
         }
-        if (max == 0) -1
-        else max
-    } catch (e: NumberFormatException) {
-        -1
     }
+    return max
 }
+
 
 /**
  * Сложная (6 баллов)
@@ -207,25 +188,20 @@ fun bestLongJump(jumps: String): Int {
  */
 fun bestHighJump(jumps: String): Int {
     val results = jumps.split(" ")
-    var max = 0
-    var k = 0
+    var max = -1
+    var num = 0
 
-    return try {
-        for (attempt in results) {
-            k++
-            when (attempt) {
-                "%", "+", "%+", "%%-", "%-" -> continue
-                else -> {
-                    val num = attempt.toInt()
-                    if (num > max && results[k] == "+") max = num
-                }
+    for (i in 0 until results.size - 1 step 2) {
+        if (results[i + 1] == "+") {
+            try {
+                num = results[i].toInt()
+            } catch (e: NumberFormatException) {
+                return -1
             }
+            if (num > max) max = num
         }
-        if (max == 0) -1
-        else max
-    } catch (e: NumberFormatException) {
-        -1
     }
+    return max
 }
 
 /**
@@ -240,20 +216,21 @@ fun bestHighJump(jumps: String): Int {
 fun plusMinus(expression: String): Int {
     val expr = expression.split(" ")
     var res = 0
+    var num = 0
 
-    return try {
-        for (i in expr.indices step 2) {
-            var num = expr[i].toInt()
-            if ("+" in expr[i] && "-" in expr[i]) num = expr[i][0].toInt()
-            if (i != 0) {
-                if (expr[i - 1] == "-") num *= -1
-            }
-            res += num
+    for (i in expr.indices step 2) {
+        try {
+            num = if (("+" in expr[i] || "-" in expr[i]) && expr[i].length > 1) "+".toInt()
+            else expr[i].toInt()
+        } catch (e: IllegalArgumentException) {
+            throw e
         }
-        res
-    } catch (e: IllegalArgumentException) {
-        throw e
+        if (i != 0) {
+            if (expr[i - 1] == "-") num *= -1
+        }
+        res += num
     }
+    return res
 }
 
 /**

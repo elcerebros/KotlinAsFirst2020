@@ -129,17 +129,7 @@ fun containsIn(a: Map<String, String>, b: Map<String, String>): Boolean {
  *   subtractOf(a = mutableMapOf("a" to "z"), mapOf("a" to "z"))
  *     -> a changes to mutableMapOf() aka becomes empty
  */
-fun subtractOf(a: MutableMap<String, String>, b: Map<String, String>) {
-    val nameToRemove = mutableListOf<String>()
-
-    for ((x, y) in a) {
-        if (b[x] == y) nameToRemove.add(x)
-    }
-
-    for (name in nameToRemove) {
-        a.remove(name)
-    }
-}
+fun subtractOf(a: MutableMap<String, String>, b: Map<String, String>) = a.filter { (x, y) -> b[x] != y }
 
 /**
  * Простая (2 балла)
@@ -179,8 +169,10 @@ fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<S
         if (!mapA.contains(name)) {
             res += (name to phone)
         } else {
-            if (!mapA.containsValue(phone)) {
-                if (phone != "") res[name] += ", $phone"
+            if (mapA[name] != phone) {
+                if (phone != "") {
+                    res[name] += ", $phone"
+                }
             }
         }
     }
@@ -200,15 +192,12 @@ fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<S
 fun averageStockPrice(stockPrices: List<Pair<String, Double>>): Map<String, Double> {
     val res = mutableMapOf<String, Double>()
     val num = mutableMapOf<String, Int>()
-    val price = mutableMapOf<String, Double>()
 
     for ((name, cost) in stockPrices) {
         num[name] = (num[name] ?: 0) + 1
-        price[name] = (price[name] ?: 0.0) + cost
+        res[name] = (res[name] ?: 0.0) + cost
     }
-    for ((name, cost) in stockPrices) {
-        res[name] = price[name]!! / num[name]!!
-    }
+    res.map { (name) -> res[name]!! / num[name]!! }
 
     return res
 }
@@ -255,20 +244,16 @@ fun canBuildFrom(chars: List<Char>, word: String): Boolean = TODO()
  *   extractRepeats(listOf("a", "b", "a")) -> mapOf("a" to 2)
  */
 fun extractRepeats(list: List<String>): Map<String, Int> {
-    val res1 = mutableMapOf<String, Int>()
     val res = mutableMapOf<String, Int>()
     for (item in list) {
-        res1[item] = 0
+        res[item] = 0
     }
 
     for (item in list) {
-        res1[item] = (res1[item] ?: 0) + 1
-    }
-    for (item in list) {
-        if (res1[item] != 1) res[item] = (res1[item] ?: 0)
+        res[item] = (res[item] ?: 0) + 1
     }
 
-    return res
+    return res.filter { (_, num) -> num > 1 }
 }
 
 /**
@@ -319,16 +304,14 @@ fun hasAnagrams(words: List<String>): Boolean = TODO()
  *          "GoodGnome" to setOf()
  *        )
  */
-
 fun handShakes(res: MutableMap<String, Set<String>?>, friends: Map<String, Set<String>>, name: String):
         Set<String>? {
     for (item in (friends[name] ?: setOf())) {
-        (res[name] ?: error("")) + friends[name] + handShakes(res, friends, item)
+        res[name] = (friends[name] ?: error("")) + (handShakes(res, friends, item) ?: setOf())
     }
 
     return res[name]
 }
-
 
 fun propagateHandshakes(friends: Map<String, Set<String>>): MutableMap<String, Set<String>?> {
     val res = mutableMapOf<String, Set<String>?>()
@@ -339,20 +322,8 @@ fun propagateHandshakes(friends: Map<String, Set<String>>): MutableMap<String, S
     }
 
     for (item in resSet) {
-        res[item] = mutableSetOf<String>()
-        if (friends.containsKey(item)) {
-            res[item] = handShakes(res, friends, item)
-        }
+        res[item] = handShakes(res, friends, item) ?: setOf()
     }
-
-    /*
-    for ((name, people) in res) {
-        for (item in people!!) {
-            (res[name] ?: error("")) + handShakes(res, friends, item)
-        }
-    }
-
-     */
 
     return res
 }
@@ -375,9 +346,9 @@ fun propagateHandshakes(friends: Map<String, Set<String>>): MutableMap<String, S
  *   findSumOfTwo(listOf(1, 2, 3), 6) -> Pair(-1, -1)
  */
 fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
-    for ((i, num1) in list.withIndex()) {
-        for ((j, num2) in list.withIndex()) {
-            if (num1 + num2 == number && i != j) {
+    for (i in 0..list.size / 2) {
+        for (j in list.size / 2 + 1 until list.size) {
+            if (list[i] + list[j] == number) {
                 return Pair(i, j)
             }
         }
