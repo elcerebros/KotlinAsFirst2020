@@ -72,7 +72,7 @@ fun deleteMarked(inputName: String, outputName: String) {
             }
             Regex("""^_""").find(line) != null -> continue
             else -> {
-                for ((currentLineLength, word) in line.split(Regex("\\s+")).withIndex()) {
+                for ((currentLineLength, word) in line.split(Regex("\\s")).withIndex()) {
                     if (currentLineLength != 0) {
                         writer.write(" ")
                     }
