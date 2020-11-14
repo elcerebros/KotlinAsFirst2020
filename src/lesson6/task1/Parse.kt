@@ -64,9 +64,8 @@ fun main() {
     }
 }
 
-fun months() = mutableMapOf("января" to 1, "февраля" to 2, "марта" to 3,
-        "апреля" to 4, "мая" to 5, "июня" to 6, "июля" to 7, "августа" to 8, "сентября" to 9,
-        "октября" to 10, "ноября" to 11, "декабря" to 12)
+val months = listOf("января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа",
+        "сентября", "октября", "ноября", "декабря")
 
 /**
  * Средняя (4 балла)
@@ -85,10 +84,16 @@ fun dateStrToDigit(str: String): String =
             val day = date[0].toInt()
             val month = date[1]
             val year = date[2].toInt()
+            var monthNum = 0
+            for (i in months.indices) {
+                if (month == months[i]) {
+                    monthNum = i + 1
+                }
+            }
             when {
-                !months().containsKey(month) -> ""
-                day > daysInMonth(months()[month] ?: error(""), year) -> ""
-                else -> String.format("%02d.%02d.%d", day, months()[month], year)
+                month !in months -> ""
+                day > daysInMonth(monthNum, year) -> ""
+                else -> String.format("%02d.%02d.%d", day, monthNum, year)
             }
         } catch (e: Exception) {
             ""
@@ -111,24 +116,22 @@ fun dateDigitToStr(digital: String): String =
             val day = date[0].toInt()
             val monthNum = date[1].toInt()
             val year = date[2].toInt()
-            var monthRes = ""
+            var month = ""
+            for (i in months.indices) {
+                if (monthNum == i) {
+                    month = months[i - 1]
+                }
+            }
             when {
-                !months().containsValue(monthNum) -> ""
+                month !in months -> ""
                 day > daysInMonth(monthNum, year) -> ""
                 date.size != 3 -> ""
-                else -> {
-                    for ((month, num) in months()) {
-                        if (num == monthNum) {
-                            monthRes = month
-                            break
-                        }
-                    }
-                    String.format("%d %s %d", day, monthRes, year)
-                }
+                else -> String.format("%d %s %d", day, month, year)
             }
         } catch (e: Exception) {
             ""
         }
+
 
 /**
  * Средняя (4 балла)

@@ -129,7 +129,13 @@ fun containsIn(a: Map<String, String>, b: Map<String, String>): Boolean {
  *   subtractOf(a = mutableMapOf("a" to "z"), mapOf("a" to "z"))
  *     -> a changes to mutableMapOf() aka becomes empty
  */
-fun subtractOf(a: MutableMap<String, String>, b: Map<String, String>) = a.filter { (x, y) -> b[x] != y }
+fun subtractOf(a: MutableMap<String, String>, b: Map<String, String>) {
+    for ((x, y) in b) {
+        if (a[x] == y) {
+            a.remove(x)
+        }
+    }
+}
 
 /**
  * Простая (2 балла)
@@ -170,9 +176,7 @@ fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<S
             res += (name to phone)
         } else {
             if (mapA[name] != phone) {
-                if (phone != "") {
-                    res[name] += ", $phone"
-                }
+                res[name] += ", $phone"
             }
         }
     }
@@ -191,15 +195,15 @@ fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<S
  */
 fun averageStockPrice(stockPrices: List<Pair<String, Double>>): Map<String, Double> {
     val res = mutableMapOf<String, Double>()
-    val num = mutableMapOf<String, Int>()
+    val counter = mutableMapOf<String, Int>()
 
     for ((name, cost) in stockPrices) {
-        num[name] = (num[name] ?: 0) + 1
+        counter[name] = (counter[name] ?: 0) + 1
         res[name] = (res[name] ?: 0.0) + cost
     }
-    res.map { (name) -> res[name]!! / num[name]!! }
 
-    return res
+
+    return res.map { (name, cost) -> name to cost / (counter[name] ?: 1) }.toMap()
 }
 
 /**
@@ -245,9 +249,6 @@ fun canBuildFrom(chars: List<Char>, word: String): Boolean = TODO()
  */
 fun extractRepeats(list: List<String>): Map<String, Int> {
     val res = mutableMapOf<String, Int>()
-    for (item in list) {
-        res[item] = 0
-    }
 
     for (item in list) {
         res[item] = (res[item] ?: 0) + 1
@@ -307,7 +308,9 @@ fun hasAnagrams(words: List<String>): Boolean = TODO()
 fun handShakes(res: MutableMap<String, Set<String>?>, friends: Map<String, Set<String>>, name: String):
         Set<String>? {
     for (item in (friends[name] ?: setOf())) {
-        res[name] = (friends[name] ?: error("")) + (handShakes(res, friends, item) ?: setOf())
+        while (!res[name]?.contains(item)!!) {
+            res[name] = (friends[name] ?: error("")) + (handShakes(res, friends, item) ?: setOf())
+        }
     }
 
     return res[name]

@@ -195,6 +195,16 @@ class Tests {
                         mapOf("Emergency" to "911", "Police" to "02")
                 )
         )
+        assertEquals(
+                mapOf("" to "`Rr -+=Ouky6}lIdI[wm\tx*{\n\"8t3o_aj$-2_*,;" +
+                        "\t7Z<,[M2).>ml1@Rv}q@Y\";N(<j /.'Q\tw4z,o/\t[3xW)63M\"]:srm" +
+                        "\n.kleJ/ '_fA@4O3-guRHU\t9t:UvQtK$, "),
+                mergePhoneBooks(
+                        mapOf("" to "`Rr -+=Ouky6}lIdI[wm\tx*{\n\"8t3o_aj$-2_*,;\t7Z<,[M2).>ml1@Rv}q@Y" +
+                                "\";N(<j /.'Q\tw4z,o/\t[3xW)63M\"]:srm\n.kleJ/ '_fA@4O3-guRHU\t9t:UvQtK$"),
+                        mapOf("" to "")
+                )
+        )
     }
 
     @Test
