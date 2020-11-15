@@ -221,7 +221,7 @@ fun averageStockPrice(stockPrices: List<Pair<String, Double>>): Map<String, Doub
  *     "печенье"
  *   ) -> "Мария"
  */
-fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): String? = TODO()
+fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): String = TODO()
 
 /**
  * Средняя (3 балла)
@@ -305,17 +305,21 @@ fun hasAnagrams(words: List<String>): Boolean = TODO()
  *          "GoodGnome" to setOf()
  *        )
  */
-fun handShakes(res: MutableMap<String, Set<String>?>, friends: Map<String, Set<String>>, name: String):
-        Set<String>? {
+fun handShakes(friends: Map<String, Set<String>>, name: String):
+        Set<String> {
+    var res = setOf<String>()
+
     for (item in (friends[name] ?: setOf())) {
-        while (!res[name]?.contains(item)!!) {
-            res[name] = (friends[name] ?: error("")) + (handShakes(res, friends, item) ?: setOf())
+        res = friends[name] ?: setOf()
+        if (!(friends[item] ?: setOf()).contains(name)) {
+            res = res + handShakes(friends, item)
         }
     }
 
-    return res[name]
+    return res
 }
 
+//if (!(friends[item] ?: setOf()).contains(name)) {
 fun propagateHandshakes(friends: Map<String, Set<String>>): MutableMap<String, Set<String>?> {
     val res = mutableMapOf<String, Set<String>?>()
     val resSet = mutableSetOf<String>()
@@ -325,7 +329,7 @@ fun propagateHandshakes(friends: Map<String, Set<String>>): MutableMap<String, S
     }
 
     for (item in resSet) {
-        res[item] = handShakes(res, friends, item) ?: setOf()
+        res[item] = handShakes(friends, item)
     }
 
     return res
@@ -349,11 +353,12 @@ fun propagateHandshakes(friends: Map<String, Set<String>>): MutableMap<String, S
  *   findSumOfTwo(listOf(1, 2, 3), 6) -> Pair(-1, -1)
  */
 fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
-    for (i in 0..list.size - 2) {
-        for (j in i + 1 until list.size) {
-            if (list[i] + list[j] == number) {
-                return Pair(i, j)
-            }
+    for (i in list.indices) {
+        val currentList = list.map { it + list[i] }
+        if (number in currentList && i != currentList.indexOf(number)) {
+            return if (i < currentList.indexOf(number)) {
+                Pair(i, currentList.indexOf(number))
+            } else Pair(currentList.indexOf(number), i)
         }
     }
     return Pair(-1, -1)
