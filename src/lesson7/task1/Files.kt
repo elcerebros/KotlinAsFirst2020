@@ -73,7 +73,7 @@ fun deleteMarked(inputName: String, outputName: String) {
             }
             Regex("""^_""").find(line) != null -> continue
             else -> {
-                for ((currentLineLength, word) in line.split(Regex("\\s")).withIndex()) {
+                for ((currentLineLength, word) in line.split(Regex("""\s+""")).withIndex()) {
                     if (currentLineLength != 0) {
                         writer.write(" ")
                     }
@@ -150,10 +150,22 @@ fun centerFile(inputName: String, outputName: String) {
     }
 
     for (line in File(inputName).readLines()) {
-        for (i in 0 until (max - line.length) / 2) {
+        var numOfSpaces = 0
+        for (letter in line) {
+            if (letter.toString() == " ") {
+                numOfSpaces++
+            } else break
+        }
+        val gap = if (numOfSpaces > 0) {
+            (max - (line.length - numOfSpaces)) / 2 - 1
+        } else {
+            (max - line.length) / 2
+        }
+
+        for (i in 0 until gap) {
             writer.write(" ")
         }
-        for ((currentLineLength, word) in line.split(Regex("\\s+")).withIndex()) {
+        for ((currentLineLength, word) in line.split(Regex("""\s+""")).withIndex()) {
             if (currentLineLength != 0) {
                 writer.write(" ")
             }
@@ -193,7 +205,34 @@ fun centerFile(inputName: String, outputName: String) {
  * 8) Если входной файл удовлетворяет требованиям 1-7, то он должен быть в точности идентичен выходному файлу
  */
 fun alignFileByWidth(inputName: String, outputName: String) {
-    TODO()
+    val writer = File(outputName).bufferedWriter()
+    var max = 0
+    for (line in File(inputName).readLines()) {
+        if (line.length > max) max = line.length
+    }
+
+    for (line in File(inputName).readLines()) {
+        var numOfLetters = 0
+        for (letter in line) {
+            numOfLetters++
+        }
+        var numOfWords = 0
+        for (word in line.split(Regex("\\s+"))) {
+            numOfWords++
+        }
+        val gap = (max - numOfLetters) / (numOfWords - 1)
+
+        for ((currentLineLength, word) in line.split(Regex("\\s+")).withIndex()) {
+            writer.write(word)
+            if (currentLineLength != 0 && currentLineLength != 0) {
+                for (i in 0 until gap) {
+                    writer.write(" ")
+                }
+            }
+        }
+        writer.newLine()
+    }
+    writer.close()
 }
 
 /**
