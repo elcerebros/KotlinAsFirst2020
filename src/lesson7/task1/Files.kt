@@ -163,9 +163,15 @@ fun centerFile(inputName: String, outputName: String) {
 
     for (line in File(inputName).readLines()) {
         val numOfSpaces = numOfSpaces(line) - 1
+        var numOfSpacesBack = 0
+        for (i in line.length - 1 downTo 0) {
+            if (line[i].toString() == " ") {
+                numOfSpacesBack++
+            } else break
+        }
         val gap = if (numOfSpaces == -1) {
-            kotlin.math.abs((max - line.length) / 2)
-        } else kotlin.math.abs((max - (line.length - numOfSpaces + 1)) / 2) - numOfSpaces
+            kotlin.math.abs((max - line.length - numOfSpacesBack) / 2)
+        } else kotlin.math.abs((max - (line.length - numOfSpacesBack - numOfSpaces + 1)) / 2) - numOfSpaces
 
         for (i in 0 until gap) {
             writer.write(" ")
