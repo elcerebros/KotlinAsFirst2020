@@ -147,21 +147,29 @@ fun centerFile(inputName: String, outputName: String) {
         if (line.length > max) max = line.length
     }
     for (line in File(inputName).readLines()) {
-        if ((max % 2 == 0 && ((max - line.length) / 2) % 2 == 0) ||
-                (max % 2 != 0 && ((max - line.length) / 2) % 2 != 0)) {
-            for (i in 2 until (max - line.length) / 2) {
+        val gap = (max - line.length) / 2
+        var gapStart = 0
+
+        if (Regex("""^ """).find(line) != null) {
+            gapStart++
+        }
+        if (gapStart > 0) {
+            for (i in gapStart + 1 until gap) {
                 writer.write(" ")
             }
         } else {
-            for (i in 0 until (max - line.length) / 2) {
+            for (i in 0 until gap) {
                 writer.write(" ")
             }
         }
+
         writer.write(line)
         writer.newLine()
     }
     writer.close()
 }
+//(max % 2 == 0 && ((max - line.length) / 2) % 2 == 0) ||
+//                (max % 2 != 0 && ((max - line.length) / 2) % 2 != 0)
 
 /**
  * Сложная (20 баллов)
