@@ -64,7 +64,6 @@ fun alignFile(inputName: String, lineLength: Int, outputName: String) {
  */
 fun deleteMarked(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
-
     for (line in File(inputName).readLines()) {
         when {
             line.isEmpty() -> {
@@ -73,7 +72,7 @@ fun deleteMarked(inputName: String, outputName: String) {
             }
             Regex("""^_""").find(line) != null -> continue
             else -> {
-                for ((currentLineLength, word) in line.split(Regex("""\s+""")).withIndex()) {
+                for ((currentLineLength, word) in line.split(Regex("\\s")).withIndex()) {
                     if (currentLineLength != 0) {
                         writer.write(" ")
                     }
@@ -83,7 +82,6 @@ fun deleteMarked(inputName: String, outputName: String) {
         }
         writer.newLine()
     }
-
     writer.close()
 }
 
@@ -150,22 +148,21 @@ fun centerFile(inputName: String, outputName: String) {
     }
 
     for (line in File(inputName).readLines()) {
-        var numOfSpaces = 0
+        var numOfSpaces = -1
         for (letter in line) {
             if (letter.toString() == " ") {
                 numOfSpaces++
             } else break
         }
-        val gap = if (numOfSpaces > 0) {
-            (max - (line.length - numOfSpaces)) / 2 - 1
-        } else {
-            (max - line.length) / 2
-        }
+        val gap = if (numOfSpaces == -1) {
+            kotlin.math.abs((max - line.length) / 2)
+        } else kotlin.math.abs((max - (line.length - numOfSpaces + 1)) / 2) - numOfSpaces
 
         for (i in 0 until gap) {
             writer.write(" ")
         }
-        for ((currentLineLength, word) in line.split(Regex("""\s+""")).withIndex()) {
+
+        for ((currentLineLength, word) in line.split(Regex("\\s")).withIndex()) {
             if (currentLineLength != 0) {
                 writer.write(" ")
             }
