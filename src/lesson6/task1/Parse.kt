@@ -118,8 +118,8 @@ fun dateDigitToStr(digital: String): String =
             val year = date[2].toInt()
             var month = ""
             for (i in months.indices) {
-                if (monthNum == i) {
-                    month = months[i - 1]
+                if (monthNum == i + 1) {
+                    month = months[i]
                 }
             }
             when {
@@ -162,7 +162,7 @@ fun flattenPhoneNumber(phone: String): String = TODO()
 fun bestLongJump(jumps: String): Int {
     val results = jumps.split(" ")
     var max = -1
-    var num = 0
+    var num: Int
 
     for (attempt in results) {
         if (attempt != "%" && attempt != "-") {
@@ -192,7 +192,7 @@ fun bestLongJump(jumps: String): Int {
 fun bestHighJump(jumps: String): Int {
     val results = jumps.split(" ")
     var max = -1
-    var num = 0
+    var num: Int
 
     for (i in 0 until results.size - 1 step 2) {
         if (results[i + 1] == "+") {
@@ -219,7 +219,7 @@ fun bestHighJump(jumps: String): Int {
 fun plusMinus(expression: String): Int {
     val expr = expression.split(" ")
     var res = 0
-    var num = 0
+    var num: Int
 
     for (i in expr.indices step 2) {
         try {
