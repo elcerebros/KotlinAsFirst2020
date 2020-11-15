@@ -319,7 +319,6 @@ fun handShakes(friends: Map<String, Set<String>>, name: String):
     return res
 }
 
-//if (!(friends[item] ?: setOf()).contains(name)) {
 fun propagateHandshakes(friends: Map<String, Set<String>>): MutableMap<String, Set<String>?> {
     val res = mutableMapOf<String, Set<String>?>()
     val resSet = mutableSetOf<String>()
