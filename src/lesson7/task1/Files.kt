@@ -140,20 +140,29 @@ fun sibilants(inputName: String, outputName: String) {
  * 4) Число строк в выходном файле должно быть равно числу строк во входном (в т. ч. пустых)
  *
  */
+fun numOfSpaces(line: String): Int {
+    var num = 0
+    for (letter in line) {
+        if (letter.toString() == " ") {
+            num++
+        } else break
+    }
+    return num
+}
+
 fun centerFile(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
     var max = 0
     for (line in File(inputName).readLines()) {
-        if (line.length > max) max = line.length
+        if (line.length > max) {
+            max = line.length
+            val numOfSpaces = numOfSpaces(line)
+            max -= numOfSpaces
+        }
     }
 
     for (line in File(inputName).readLines()) {
-        var numOfSpaces = -1
-        for (letter in line) {
-            if (letter.toString() == " ") {
-                numOfSpaces++
-            } else break
-        }
+        val numOfSpaces = numOfSpaces(line) - 1
         val gap = if (numOfSpaces == -1) {
             kotlin.math.abs((max - line.length) / 2)
         } else kotlin.math.abs((max - (line.length - numOfSpaces + 1)) / 2) - numOfSpaces
