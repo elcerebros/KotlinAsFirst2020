@@ -116,12 +116,7 @@ fun dateDigitToStr(digital: String): String =
             val day = date[0].toInt()
             val monthNum = date[1].toInt()
             val year = date[2].toInt()
-            var month = ""
-            for (i in months.indices) {
-                if (monthNum == i + 1) {
-                    month = months[i]
-                }
-            }
+            val month = months[monthNum]
             when {
                 month !in months -> ""
                 day > daysInMonth(monthNum, year) -> ""
@@ -195,7 +190,7 @@ fun bestHighJump(jumps: String): Int {
     var num: Int
 
     for (i in 0 until results.size - 1 step 2) {
-        if (results[i + 1] == "+") {
+        if (results[i + 1].contains("+")) {
             try {
                 num = results[i].toInt()
             } catch (e: NumberFormatException) {
@@ -219,12 +214,11 @@ fun bestHighJump(jumps: String): Int {
 fun plusMinus(expression: String): Int {
     val expr = expression.split(" ")
     var res = 0
-    var num: Int
+    var num = 0
 
     for (i in expr.indices step 2) {
         try {
-            num = if (("+" in expr[i] || "-" in expr[i]) && expr[i].length > 1) "+".toInt()
-            else expr[i].toInt()
+            if (Regex("""^-\+""").find(expr[i]) == null) num = expr[i].toInt()
         } catch (e: IllegalArgumentException) {
             throw e
         }

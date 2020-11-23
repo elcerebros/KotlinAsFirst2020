@@ -305,6 +305,7 @@ fun hasAnagrams(words: List<String>): Boolean = TODO()
  *          "GoodGnome" to setOf()
  *        )
  */
+/*
 fun handShakes(friends: Map<String, Set<String>>, name: String):
         Set<String> {
     var res = setOf<String>()
@@ -319,8 +320,10 @@ fun handShakes(friends: Map<String, Set<String>>, name: String):
     return res
 }
 
-fun propagateHandshakes(friends: Map<String, Set<String>>): MutableMap<String, Set<String>?> {
-    val res = mutableMapOf<String, Set<String>?>()
+ */
+
+fun propagateHandshakes(friends: Map<String, Set<String>>): MutableMap<String, Set<String>?> = TODO()
+    /*val res = mutableMapOf<String, Set<String>?>()
     val resSet = mutableSetOf<String>()
     for ((person, people) in friends) {
         resSet.add(person)
@@ -333,6 +336,8 @@ fun propagateHandshakes(friends: Map<String, Set<String>>): MutableMap<String, S
 
     return res
 }
+
+     */
 
 /**
  * Сложная (6 баллов)
@@ -352,14 +357,17 @@ fun propagateHandshakes(friends: Map<String, Set<String>>): MutableMap<String, S
  *   findSumOfTwo(listOf(1, 2, 3), 6) -> Pair(-1, -1)
  */
 fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
-    for (i in list.indices) {
-        val currentList = list.map { it + list[i] }
-        if (number in currentList && i != currentList.indexOf(number)) {
-            return if (i < currentList.indexOf(number)) {
-                Pair(i, currentList.indexOf(number))
-            } else Pair(currentList.indexOf(number), i)
-        }
+    if (list.isEmpty()) return Pair(-1, -1)
+    var a = 0
+    var b = 1
+    while (a != list.size - 2) {
+        if (list[a] + list[b] == number) return Pair(a, b)
+        if (b == list.size - 1) {
+            a++
+            b = a + 1
+        } else b++
     }
+
     return Pair(-1, -1)
 }
 
