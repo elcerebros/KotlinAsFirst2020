@@ -428,47 +428,47 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
                 if (indOfWord != 0) {
                     writer.write(" ")
                 }
-
                 val edit = mutableMapOf<Int, String>()
                 var i = 0
                 for (letter in word) {
                     edit[i] = letter.toString()
                     i++
                 }
-                for (i in 0..word.length - 2) {
-                    if (edit[i] == "*" && edit[i + 1] == "*") {
+
+                for (i in word.indices) {
+                    if (edit[i - 1] == "*" && edit[i] == "*") {
                         if (i1 == 0) {
-                            edit[i] = "<b>"
-                            edit[i + 1] = ""
+                            edit[i - 1] = "<b>"
+                            edit[i] = ""
                             i1++
                         } else {
-                            edit[i] = ""
-                            edit[i + 1] = "</b>"
+                            edit[i - 1] = ""
+                            edit[i] = "</b>"
                             i1 = 0
                         }
                     }
-                    if (edit[i] == "*") {
+                    if (edit[i - 1] == "*" && edit[i] != "*") {
                         if (i2 == 0) {
-                            edit[i] = "<i>"
+                            edit[i - 1] = "<i>"
                             i2++
                         } else {
-                            edit[i] = "</i>"
+                            edit[i - 1] = "</i>"
                             i2 = 0
                         }
                     }
-                    if (edit[i] == "~" && edit[i + 1] == "~") {
+                    if (edit[i - 1] == "~" && edit[i] == "~") {
                         if (i3 == 0) {
-                            edit[i] = "<s>"
-                            edit[i + 1] = ""
+                            edit[i - 1] = "<s>"
+                            edit[i] = ""
                             i3++
                         } else {
-                            edit[i] = ""
-                            edit[i + 1] = "</s>"
+                            edit[i - 1] = ""
+                            edit[i] = "</s>"
                             i3 = 0
                         }
                     }
                 }
-                for ((i, letter) in edit) {
+                for ((x, letter) in edit) {
                     writer.write(letter)
                 }
             }
