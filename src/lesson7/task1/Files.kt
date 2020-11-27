@@ -3,6 +3,7 @@
 package lesson7.task1
 
 import java.io.File
+import kotlin.math.abs
 
 // Урок 7: работа с файлами
 // Урок интегральный, поэтому его задачи имеют сильно увеличенную стоимость
@@ -52,6 +53,7 @@ fun alignFile(inputName: String, lineLength: Int, outputName: String) {
     }
     writer.close()
 }
+
 fun numOfSpaces(line: String): Int {
     var num = 0
     for (letter in line) {
@@ -223,30 +225,50 @@ fun alignFileByWidth(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
     var max = 0
     for (line in File(inputName).readLines()) {
-        if (line.length > max) max = line.length
+        if (line.length > max) {
+            max = line.length
+            val numOfSpaces = numOfSpaces(line)
+            val numOfSpacesBack = numOfSpacesBack(line)
+            max -= numOfSpaces + numOfSpacesBack
+        }
     }
 
     for (line in File(inputName).readLines()) {
-        var numOfLetters = 0
-        for (letter in line) {
-            numOfLetters++
+        if (line.isEmpty()) {
+            writer.newLine()
+            continue
         }
-        var numOfWords = 0
+        var wordsLenth = 0
+        var numOfWords = -1
         for (word in line.split(Regex("\\s+"))) {
+            wordsLenth += word.length
             numOfWords++
         }
-        val gap = (max - numOfLetters) / (numOfWords - 1)
 
-        for ((currentLineLength, word) in line.split(Regex("\\s+")).withIndex()) {
+        var gapX = max - wordsLenth
+        val gap = mutableListOf<Int>(0)
+        if (numOfWords != 1) {
+            for (num in 0 until numOfWords) {
+                if (gapX % (gapX / (numOfWords - 1)) > 0) {
+                    gap.add((max - wordsLenth) / abs(numOfWords - 1) + 1)
+                } else {
+                    gap.add((max - wordsLenth) / abs(numOfWords - 1))
+                }
+                gapX -= gap[num]
+            }
+        }
+
+        for ((indOfWord, word) in line.split(Regex("\\s+")).withIndex()) {
             writer.write(word)
-            if (currentLineLength != 0 && currentLineLength != 0) {
-                for (i in 0 until gap) {
+            if (indOfWord != numOfWords) {
+                for (i in 0 until gap[indOfWord]) {
                     writer.write(" ")
                 }
             }
         }
         writer.newLine()
     }
+
     writer.close()
 }
 
@@ -271,21 +293,7 @@ fun alignFileByWidth(inputName: String, outputName: String) {
  *
  */
 fun top20Words(inputName: String): Map<String, Int> {
-    val res = mutableMapOf<String, Int>()
-    var num = 20
-    for (line in File(inputName).readLines()) {
-        for (word in line.split(Regex("""\s+|[-,!?0-9]+"""))) {
-            res[word] = (res[word] ?: 0) + 1
-        }
-    }
-
-    for (item in res.toSortedMap()) {
-        if (num < 0) {
-            res.remove(item)
-        }
-        num -= 1
-    }
-    return res
+    TODO()
 }
 
 /**
@@ -401,7 +409,75 @@ Suspendisse <s>et elit in enim tempus iaculis</s>.
  * (Отступы и переносы строк в примере добавлены для наглядности, при решении задачи их реализовывать не обязательно)
  */
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
-    TODO()
+    val writer = File(outputName).bufferedWriter()
+    var numP = 0
+    var i1 = 0
+    var i2 = 0
+    var i3 = 0
+    writer.write("<html><body>")
+
+    for (line in File(inputName).readLines()) {
+        if (numP == 0) {
+            writer.write("<p>")
+        }
+        if (line.isEmpty()) {
+            numP = 0
+            writer.write("</p>")
+        } else {
+            for ((indOfWord, word) in line.split(Regex("\\s")).withIndex()) {
+                if (indOfWord != 0) {
+                    writer.write(" ")
+                }
+
+                val edit = mutableMapOf<Int, String>()
+                var i = 0
+                for (letter in word) {
+                    edit[i] = letter.toString()
+                    i++
+                }
+                for (i in 0..word.length - 2) {
+                    if (edit[i] == "*" && edit[i + 1] == "*") {
+                        if (i1 == 0) {
+                            edit[i] = "<b>"
+                            edit[i + 1] = ""
+                            i1++
+                        } else {
+                            edit[i] = ""
+                            edit[i + 1] = "</b>"
+                            i1 = 0
+                        }
+                    }
+                    if (edit[i] == "*") {
+                        if (i2 == 0) {
+                            edit[i] = "<i>"
+                            i2++
+                        } else {
+                            edit[i] = "</i>"
+                            i2 = 0
+                        }
+                    }
+                    if (edit[i] == "~" && edit[i + 1] == "~") {
+                        if (i3 == 0) {
+                            edit[i] = "<s>"
+                            edit[i + 1] = ""
+                            i3++
+                        } else {
+                            edit[i] = ""
+                            edit[i + 1] = "</s>"
+                            i3 = 0
+                        }
+                    }
+                }
+                for ((i, letter) in edit) {
+                    writer.write(letter)
+                }
+            }
+            numP++
+        }
+    }
+    writer.write("</p>")
+    writer.write("</body></html>")
+    writer.close()
 }
 
 /**
