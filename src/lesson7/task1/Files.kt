@@ -424,7 +424,7 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
             numP = 0
             writer.write("</p>")
         } else {
-            for ((indOfWord, word) in line.split(Regex("\\s")).withIndex()) {
+            for ((indOfWord, word) in line.split(Regex("[\\s\\n\\t]")).withIndex()) {
                 if (indOfWord != 0) {
                     writer.write(" ")
                 }
