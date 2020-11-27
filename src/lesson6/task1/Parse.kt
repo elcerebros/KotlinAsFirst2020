@@ -116,7 +116,7 @@ fun dateDigitToStr(digital: String): String =
             val day = date[0].toInt()
             val monthNum = date[1].toInt()
             val year = date[2].toInt()
-            val month = months[monthNum]
+            val month = months[monthNum - 1]
             when {
                 month !in months -> ""
                 day > daysInMonth(monthNum, year) -> ""
@@ -217,8 +217,9 @@ fun plusMinus(expression: String): Int {
     var num = 0
 
     for (i in expr.indices step 2) {
-        try {
-            if (Regex("""^-\+""").find(expr[i]) == null) num = expr[i].toInt()
+        num = try {
+            if (Regex("""^[+-]""").find(expr[i]) == null) expr[i].toInt()
+            else "+".toInt()
         } catch (e: IllegalArgumentException) {
             throw e
         }
