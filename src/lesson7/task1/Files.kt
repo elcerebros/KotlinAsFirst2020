@@ -456,7 +456,7 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
                             i2 = 0
                         }
                     }
-                    if (edit[i] == "*" && i == word.length - 1) {
+                    if ((edit[i] == "*" && i == word.length - 1) || (edit[i] == "*" && word.length == 1)) {
                         if (i2 == 0) {
                             edit[i] = "<i>"
                             i2++
