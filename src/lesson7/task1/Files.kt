@@ -52,6 +52,25 @@ fun alignFile(inputName: String, lineLength: Int, outputName: String) {
     }
     writer.close()
 }
+fun numOfSpaces(line: String): Int {
+    var num = 0
+    for (letter in line) {
+        if (letter.toString() == " ") {
+            num++
+        } else break
+    }
+    return num
+}
+
+fun numOfSpacesBack(line: String): Int {
+    var num = 0
+    for (i in line.length - 1 downTo 0) {
+        if (line[i].toString() == " ") {
+            num++
+        } else break
+    }
+    return num
+}
 
 /**
  * Простая (8 баллов)
@@ -140,26 +159,6 @@ fun sibilants(inputName: String, outputName: String) {
  * 4) Число строк в выходном файле должно быть равно числу строк во входном (в т. ч. пустых)
  *
  */
-fun numOfSpaces(line: String): Int {
-    var num = 0
-    for (letter in line) {
-        if (letter.toString() == " ") {
-            num++
-        } else break
-    }
-    return num
-}
-
-fun numOfSpacesBack(line: String): Int {
-    var num = 0
-    for (i in line.length - 1 downTo 0) {
-        if (line[i].toString() == " ") {
-            num++
-        } else break
-    }
-    return num
-}
-
 fun centerFile(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
     var max = 0
@@ -173,18 +172,16 @@ fun centerFile(inputName: String, outputName: String) {
     }
 
     for (line in File(inputName).readLines()) {
-        val numOfSpaces = numOfSpaces(line) - 1
+        val numOfSpaces = numOfSpaces(line)
         val numOfSpacesBack = numOfSpacesBack(line)
-        val gap = if (numOfSpaces == -1) {
-            kotlin.math.abs((max - (line.length - numOfSpacesBack)) / 2)
-        } else kotlin.math.abs((max - ((line.length - numOfSpacesBack) - numOfSpaces + 1)) / 2) - numOfSpaces
+        val gap = kotlin.math.abs((max - line.length + numOfSpacesBack + numOfSpaces) / 2) - numOfSpaces
 
         for (i in 0 until gap) {
             writer.write(" ")
         }
 
-        for ((currentLineLength, word) in line.split(Regex("\\s")).withIndex()) {
-            if (currentLineLength != 0) {
+        for ((indOfWord, word) in line.split(Regex("\\s")).withIndex()) {
+            if (indOfWord != 0) {
                 writer.write(" ")
             }
             writer.write(word)
