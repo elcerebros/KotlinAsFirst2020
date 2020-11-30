@@ -3,7 +3,6 @@
 package lesson7.task1
 
 import java.io.File
-import kotlin.math.abs
 
 // Урок 7: работа с файлами
 // Урок интегральный, поэтому его задачи имеют сильно увеличенную стоимость
@@ -54,25 +53,7 @@ fun alignFile(inputName: String, lineLength: Int, outputName: String) {
     writer.close()
 }
 
-fun numOfSpaces(line: String): Int {
-    var num = 0
-    for (letter in line) {
-        if (letter.toString() == " ") {
-            num++
-        } else break
-    }
-    return num
-}
 
-fun numOfSpacesBack(line: String): Int {
-    var num = 0
-    for (i in line.length - 1 downTo 0) {
-        if (line[i].toString() == " ") {
-            num++
-        } else break
-    }
-    return num
-}
 
 /**
  * Простая (8 баллов)
@@ -84,26 +65,7 @@ fun numOfSpacesBack(line: String): Int {
  * Подчёркивание в середине и/или в конце строк значения не имеет.
  */
 fun deleteMarked(inputName: String, outputName: String) {
-    val writer = File(outputName).bufferedWriter()
-    for (line in File(inputName).readLines()) {
-        when {
-            line.isEmpty() -> {
-                writer.newLine()
-                continue
-            }
-            Regex("""^_""").find(line) != null -> continue
-            else -> {
-                for ((currentLineLength, word) in line.split(Regex("\\s")).withIndex()) {
-                    if (currentLineLength != 0) {
-                        writer.write(" ")
-                    }
-                    writer.write(word)
-                }
-            }
-        }
-        writer.newLine()
-    }
-    writer.close()
+    TODO()
 }
 
 /**
@@ -116,15 +78,7 @@ fun deleteMarked(inputName: String, outputName: String) {
  *
  */
 fun countSubstrings(inputName: String, substrings: List<String>): Map<String, Int> {
-    val res = mutableMapOf<String, Int>()
-    for (line in File(inputName).readLines()) {
-        for (item in substrings) {
-            if (Regex("(item)").find(line) != null) {
-                res[item] = res[item] ?: 0 + 1
-            }
-        }
-    }
-    return res
+    TODO()
 }
 
 /**
@@ -161,6 +115,26 @@ fun sibilants(inputName: String, outputName: String) {
  * 4) Число строк в выходном файле должно быть равно числу строк во входном (в т. ч. пустых)
  *
  */
+fun numOfSpaces(line: String): Int {
+    var num = 0
+    for (letter in line) {
+        if (letter.toString() == " ") {
+            num++
+        } else break
+    }
+    return num
+}
+
+fun numOfSpacesBack(line: String): Int {
+    var num = 0
+    for (i in line.length - 1 downTo 0) {
+        if (line[i].toString() == " ") {
+            num++
+        } else break
+    }
+    return num
+}
+
 fun centerFile(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
     var max = 0
@@ -222,54 +196,7 @@ fun centerFile(inputName: String, outputName: String) {
  * 8) Если входной файл удовлетворяет требованиям 1-7, то он должен быть в точности идентичен выходному файлу
  */
 fun alignFileByWidth(inputName: String, outputName: String) {
-    val writer = File(outputName).bufferedWriter()
-    var max = 0
-    for (line in File(inputName).readLines()) {
-        if (line.length > max) {
-            max = line.length
-            val numOfSpaces = numOfSpaces(line)
-            val numOfSpacesBack = numOfSpacesBack(line)
-            max -= numOfSpaces + numOfSpacesBack
-        }
-    }
-
-    for (line in File(inputName).readLines()) {
-        if (line.isEmpty()) {
-            writer.newLine()
-            continue
-        }
-        var wordsLenth = 0
-        var numOfWords = -1
-        for (word in line.split(Regex("\\s+"))) {
-            wordsLenth += word.length
-            numOfWords++
-        }
-
-        var gapX = max - wordsLenth
-        val gap = mutableListOf<Int>(0)
-        if (numOfWords != 1) {
-            for (num in 0 until numOfWords) {
-                if (gapX % (gapX / (numOfWords - 1)) > 0) {
-                    gap.add((max - wordsLenth) / abs(numOfWords - 1) + 1)
-                } else {
-                    gap.add((max - wordsLenth) / abs(numOfWords - 1))
-                }
-                gapX -= gap[num]
-            }
-        }
-
-        for ((indOfWord, word) in line.split(Regex("\\s+")).withIndex()) {
-            writer.write(word)
-            if (indOfWord != numOfWords) {
-                for (i in 0 until gap[indOfWord]) {
-                    writer.write(" ")
-                }
-            }
-        }
-        writer.newLine()
-    }
-
-    writer.close()
+    TODO()
 }
 
 /**
@@ -416,11 +343,12 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
     var i3 = 0
     writer.write("<html><body>")
 
-    for (line in File(inputName).readLines()) {
+    for ((x, line) in File(inputName).readLines().withIndex()) {
         if (numP == 0) {
             writer.write("<p>")
+            numP++
         }
-        if (line.isEmpty()) {
+        if (line.isEmpty() && x != 0) {
             numP = 0
             writer.write("</p>")
         } else {

@@ -78,27 +78,21 @@ val months = listOf("января", "февраля", "марта", "апрел�
  * Обратите внимание: некорректная с точки зрения календаря дата (например, 30.02.2009) считается неверными
  * входными данными.
  */
-fun dateStrToDigit(str: String): String =
-        try {
-            val date = str.split(" ")
-            val day = date[0].toInt()
-            val month = date[1]
-            val year = date[2].toInt()
-            var monthNum = 0
-            for (i in months.indices) {
-                if (month == months[i]) {
-                    monthNum = i + 1
-                }
-            }
-            when {
-                month !in months -> ""
-                day > daysInMonth(monthNum, year) -> ""
-                else -> String.format("%02d.%02d.%d", day, monthNum, year)
-            }
-        } catch (e: Exception) {
-            ""
+fun dateStrToDigit(str: String): String {
+    val date = str.split(" ")
+    return try {
+        val day = date[0].toInt()
+        val month = date[1]
+        val year = date[2].toInt()
+        when {
+            month !in months -> ""
+            day > daysInMonth(months.indexOf(month) + 1, year) -> ""
+            else -> String.format("%02d.%02d.%d", day, months.indexOf(month) + 1, year)
         }
-
+    } catch (e: Exception) {
+        ""
+    }
+}
 
 /**
  * Средняя (4 балла)
@@ -110,22 +104,21 @@ fun dateStrToDigit(str: String): String =
  * Обратите внимание: некорректная с точки зрения календаря дата (например, 30 февраля 2009) считается неверными
  * входными данными.
  */
-fun dateDigitToStr(digital: String): String =
-        try {
-            val date = digital.split(".")
-            val day = date[0].toInt()
-            val monthNum = date[1].toInt()
-            val year = date[2].toInt()
-            val month = months[monthNum - 1]
-            when {
-                month !in months -> ""
-                day > daysInMonth(monthNum, year) -> ""
-                date.size != 3 -> ""
-                else -> String.format("%d %s %d", day, month, year)
-            }
-        } catch (e: Exception) {
-            ""
+fun dateDigitToStr(digital: String): String {
+    val date = digital.split(".")
+    return try {
+        val day = date[0].toInt()
+        val month = date[1].toInt()
+        val year = date[2].toInt()
+        when {
+            day > daysInMonth(month, year) -> ""
+            date.size != 3 -> ""
+            else -> String.format("%d %s %d", day, months[month - 1], year)
         }
+    } catch (e: Exception) {
+        ""
+    }
+}
 
 
 /**
@@ -217,14 +210,19 @@ fun plusMinus(expression: String): Int {
     var num = 0
 
     for (i in expr.indices step 2) {
-        num = try {
-            if (Regex("""^[+-]""").find(expr[i]) == null) expr[i].toInt()
-            else "+".toInt()
+        try {
+            if (!expr[i].startsWith("+") && !expr[i].startsWith("-")) {
+                num = expr[i].toInt()
+            } else {
+                throw java.lang.IllegalArgumentException()
+            }
         } catch (e: IllegalArgumentException) {
             throw e
         }
         if (i != 0) {
-            if (expr[i - 1] == "-") num *= -1
+            if (expr[i - 1] == "-") {
+                num *= -1
+            }
         }
         res += num
     }
