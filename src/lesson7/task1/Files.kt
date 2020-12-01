@@ -344,19 +344,19 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
     writer.write("<html><body>")
 
     for (line in File(inputName).readLines()) {
-        if (line.isNotEmpty() && numP == 0) {
-            writer.write("<p>")
-            numP++
-        }
         if (line.isEmpty() && numP != 0) {
             numP = 0
             writer.write("</p>")
+        }
+        if (line.isNotEmpty() && numP == 0) {
+            writer.write("<p>")
+            numP++
         }
         if (line.isEmpty()) {
             numP = 0
         } else {
             numP++
-            for ((indOfWord, word) in line.split(Regex("\\s+\\n+\\t+")).withIndex()) {
+            for ((indOfWord, word) in line.split(Regex("\\s\\n\\t")).withIndex()) {
                 if (indOfWord != 0) {
                     writer.write(" ")
                 }
