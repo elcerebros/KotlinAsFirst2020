@@ -348,11 +348,11 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
             writer.write("<p>")
             numP++
         }
-        if ((line.isEmpty() || numOfSpaces(line) != 0) && numP != 0) {
+        if ((line.isEmpty() || (numOfSpaces(line) != 0 && line.length == numOfSpaces(line))) && numP != 0) {
             numP = 0
             writer.write("</p>")
         }
-        if (line.isEmpty() || numOfSpaces(line) != 0) {
+        if (line.isEmpty() || (numOfSpaces(line) != 0 && line.length == numOfSpaces(line))) {
             numP = 0
         } else {
             numP++
