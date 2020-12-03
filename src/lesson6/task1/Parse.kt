@@ -80,18 +80,19 @@ val months = listOf("января", "февраля", "марта", "апрел�
  */
 fun dateStrToDigit(str: String): String {
     val date = str.split(" ")
-    return try {
-        val day = date[0].toInt()
-        val month = date[1]
-        val year = date[2].toInt()
-        when {
-            month !in months -> ""
-            day > daysInMonth(months.indexOf(month) + 1, year) -> ""
-            else -> String.format("%02d.%02d.%d", day, months.indexOf(month) + 1, year)
-        }
+    var day = 0
+    var month = ""
+    var year = 0
+    try {
+        day = date[0].toInt()
+        month = date[1]
+        year = date[2].toInt()
     } catch (e: Exception) {
         ""
     }
+    if (month !in months || day > daysInMonth(months.indexOf(month) + 1, year)
+            || date.size != 3) return ""
+    return String.format("%02d.%02d.%d", day, months.indexOf(month) + 1, year)
 }
 
 /**
@@ -106,18 +107,18 @@ fun dateStrToDigit(str: String): String {
  */
 fun dateDigitToStr(digital: String): String {
     val date = digital.split(".")
-    return try {
-        val day = date[0].toInt()
-        val month = date[1].toInt()
-        val year = date[2].toInt()
-        when {
-            day > daysInMonth(month, year) -> ""
-            date.size != 3 -> ""
-            else -> String.format("%d %s %d", day, months[month - 1], year)
-        }
+    var day = 0
+    var month = 0
+    var year = 0
+    try {
+        day = date[0].toInt()
+        month = date[1].toInt()
+        year = date[2].toInt()
     } catch (e: Exception) {
         ""
     }
+    if (day > daysInMonth(month, year) || date.size != 3 || month !in 1..12) return ""
+    return String.format("%d %s %d", day, months[month - 1], year)
 }
 
 
@@ -211,18 +212,15 @@ fun plusMinus(expression: String): Int {
 
     for (i in expr.indices step 2) {
         try {
-            if (!expr[i].startsWith("+") && !expr[i].startsWith("-")) {
-                num = expr[i].toInt()
-            } else {
-                throw java.lang.IllegalArgumentException()
-            }
+            num = expr[i].toInt()
         } catch (e: IllegalArgumentException) {
             throw e
         }
-        if (i != 0) {
-            if (expr[i - 1] == "-") {
-                num *= -1
-            }
+        if (expr[i].startsWith("+") || expr[i].startsWith("-")) {
+            throw java.lang.IllegalArgumentException()
+        }
+        if (i != 0 && expr[i - 1] == "-") {
+            num *= -1
         }
         res += num
     }

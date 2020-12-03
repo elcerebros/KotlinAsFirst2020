@@ -344,15 +344,15 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
     writer.write("<html><body>")
 
     for (line in File(inputName).readLines()) {
-        if (line.isEmpty() && numP != 0) {
-            numP = 0
-            writer.write("</p>")
-        }
         if (line.isNotEmpty() && numP == 0) {
             writer.write("<p>")
             numP++
         }
-        if (line.isEmpty()) {
+        if ((line.isEmpty() || numOfSpaces(line) != 0) && numP != 0) {
+            numP = 0
+            writer.write("</p>")
+        }
+        if (line.isEmpty() || numOfSpaces(line) != 0) {
             numP = 0
         } else {
             numP++
