@@ -413,8 +413,7 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
             }
         }
     }
-    writer.write("</p>")
-    writer.write("</body></html>")
+    writer.write("</p></body></html>")
     writer.close()
 }
 
@@ -518,77 +517,106 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
  */
 fun markdownToHtmlLists(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
-    writer.write("<html><body>")
-    var numP = 0
-    var i1 = 0
-    var i2 = 0
-    var i3 = 0
-    var i4 = 0
-    var i5 = 0
-    var i6 = 0
+    val a = mutableMapOf<Int, Int>(0 to 0, 1 to 0, 2 to 0, 3 to 0, 4 to 0, 5 to 0, 6 to 0)
+    val b = mutableMapOf<Int, Int>(0 to 0, 1 to 0, 2 to 0, 3 to 0, 4 to 0, 5 to 0, 6 to 0)
+    var current = -1
+    writer.write("<html><body><p>")
+
 
     for (line in File(inputName).readLines()) {
-        for ((indOfWord, word) in line.split(Regex("\\s")).withIndex()) {
-            if (indOfWord != 0) {
-                writer.write(" ")
-            }
-            val edit = mutableMapOf<Int, String>()
-            var i = 0
-            for (letter in word) {
-                edit[i] = letter.toString()
-                i++
-            }
-
-            for (i in word.indices) {
-                if (edit[i - 1] == "*" && edit[i] == "*") {
-                    if (i1 == 0) {
-                        edit[i - 1] = "<b>"
-                        edit[i] = ""
-                        i1++
-                    } else {
-                        edit[i - 1] = ""
-                        edit[i] = "</b>"
-                        i1 = 0
+        val spaces = numOfSpaces(line) / 4
+        if (Regex("[*]").find(line) != null) {
+            when {
+                current < spaces -> {
+                    writer.write("<ul>")
+                    writer.write("<li>")
+                    a[spaces] = a[spaces]!! + 1
+                    for ((indOfWord, word) in line.split(Regex("\\s[*]|[*]")).withIndex()) {
+                        if (indOfWord != 0) {
+                            writer.write(" ")
+                        }
+                        writer.write(word)
                     }
                 }
-                if (edit[i - 1] == "*" && edit[i] != "*") {
-                    if (i2 == 0) {
-                        edit[i - 1] = "<i>"
-                        i2++
-                    } else {
-                        edit[i - 1] = "</i>"
-                        i2 = 0
+                current > spaces -> {
+                    if (a[current] == 1 || b[current] == 1) writer.write("</li>")
+                    when {
+                        a[current] != 0 -> writer.write("</ul></li>")
+                        b[current] != 0 -> writer.write("</ol></li>")
+                    }
+                    if (a[spaces] != 0 || b[spaces] != 0) writer.write("<li>")
+                    a[spaces] = 0
+                    for ((indOfWord, word) in line.split(Regex("\\s[*]|[*]")).withIndex()) {
+                        if (indOfWord != 0) {
+                            writer.write(" ")
+                        }
+                        writer.write(word)
                     }
                 }
-                if ((edit[i] == "*" && i == word.length - 1) || (edit[i] == "*" && word.length == 1)) {
-                    if (i2 == 0) {
-                        edit[i] = "<i>"
-                        i2++
-                    } else {
-                        edit[i] = "</i>"
-                        i2 = 0
+                else -> {
+                    if (a[spaces] == 1) writer.write("</li>")
+                    writer.write("<li>")
+                    a[spaces] = a[spaces]!! + 1
+                    for ((indOfWord, word) in line.split(Regex("\\s[*]|[*]")).withIndex()) {
+                        if (indOfWord != 0) {
+                            writer.write(" ")
+                        }
+                        writer.write(word)
                     }
-                }
-                if (edit[i - 1] == "~" && edit[i] == "~") {
-                    if (i3 == 0) {
-                        edit[i - 1] = "<s>"
-                        edit[i] = ""
-                        i3++
-                    } else {
-                        edit[i - 1] = ""
-                        edit[i] = "</s>"
-                        i3 = 0
-                    }
-                }
-
-                for ((x, letter) in edit) {
-                    writer.write(letter)
+                    writer.write("</li>")
                 }
             }
         }
+
+        if (Regex("[0-9.]").find(line) != null) {
+            when {
+                current < spaces -> {
+                    writer.write("<ol>")
+                    writer.write("<li>")
+                    b[spaces] = b[spaces]!! + 1
+                    for ((indOfWord, word) in line.split(Regex("\\s[0-9.]|[0-9.]")).withIndex()) {
+                        if (indOfWord != 0) {
+                            writer.write(" ")
+                        }
+                        writer.write(word)
+                    }
+                }
+                current > spaces -> {
+                    if (a[current] == 1 || b[current] == 1) writer.write("</li>")
+                    when {
+                        a[current] != 0 -> writer.write("</ul></li>")
+                        b[current] != 0 -> writer.write("</ol></li>")
+                    }
+                    if (a[spaces] != 0 || b[spaces] != 0) writer.write("<li>")
+                    b[current] = 0
+                    for ((indOfWord, word) in line.split(Regex("\\s[0-9.]|[0-9.]")).withIndex()) {
+                        if (indOfWord != 0) {
+                            writer.write(" ")
+                        }
+                        writer.write(word)
+                    }
+                }
+                else -> {
+                    if (b[spaces] == 1) writer.write("</li>")
+                    writer.write("<li>")
+                    b[spaces] = b[spaces]!! + 1
+                    for ((indOfWord, word) in line.split(Regex("\\s[0-9.]|[0-9.]")).withIndex()) {
+                        if (indOfWord != 0) {
+                            writer.write(" ")
+                        }
+                        writer.write(word)
+                    }
+                    writer.write("</li>")
+                }
+            }
+        }
+        current = spaces
     }
-    writer.write("</p>")
-    writer.write("</body></html>")
+    for (i in 6 downTo 0) {
+        if (a[i] != 0) writer.write("</li></ul>")
+        if (b[i] != 0) writer.write("</li></ol>")
+    }
+    writer.write("</p></body></html>")
     writer.close()
 }
 
