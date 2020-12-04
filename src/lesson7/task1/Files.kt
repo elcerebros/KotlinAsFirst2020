@@ -348,7 +348,6 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
             numP++
         }
         if ((line.isEmpty() || (numOfSpaces(line) != 0 && line.length == numOfSpaces(line))) && numP != 0) {
-            numP = 0
             writer.write("</p>")
         }
         if (line.isEmpty() || (numOfSpaces(line) != 0 && line.length == numOfSpaces(line))) {
@@ -418,6 +417,7 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
     writer.write("</body></html>")
     writer.close()
 }
+
 
 /**
  * Сложная (23 балла)
