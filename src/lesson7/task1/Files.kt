@@ -54,7 +54,6 @@ fun alignFile(inputName: String, lineLength: Int, outputName: String) {
 }
 
 
-
 /**
  * Простая (8 баллов)
  *
@@ -344,7 +343,7 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
     writer.write("<html><body>")
 
     for (line in File(inputName).readLines()) {
-        if (line.isNotEmpty() && numP == 0) {
+        if (line.isNotEmpty() && line.length != numOfSpaces(line) && numP == 0) {
             writer.write("<p>")
             numP++
         }
@@ -356,7 +355,7 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
             numP = 0
         } else {
             numP++
-            for ((indOfWord, word) in line.split(Regex("\\s\\n\\t")).withIndex()) {
+            for ((indOfWord, word) in line.split(Regex("\\s")).withIndex()) {
                 if (indOfWord != 0) {
                     writer.write(" ")
                 }
@@ -518,7 +517,79 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
  * (Отступы и переносы строк в примере добавлены для наглядности, при решении задачи их реализовывать не обязательно)
  */
 fun markdownToHtmlLists(inputName: String, outputName: String) {
-    TODO()
+    val writer = File(outputName).bufferedWriter()
+    writer.write("<html><body>")
+    var numP = 0
+    var i1 = 0
+    var i2 = 0
+    var i3 = 0
+    var i4 = 0
+    var i5 = 0
+    var i6 = 0
+
+    for (line in File(inputName).readLines()) {
+        for ((indOfWord, word) in line.split(Regex("\\s")).withIndex()) {
+            if (indOfWord != 0) {
+                writer.write(" ")
+            }
+            val edit = mutableMapOf<Int, String>()
+            var i = 0
+            for (letter in word) {
+                edit[i] = letter.toString()
+                i++
+            }
+
+            for (i in word.indices) {
+                if (edit[i - 1] == "*" && edit[i] == "*") {
+                    if (i1 == 0) {
+                        edit[i - 1] = "<b>"
+                        edit[i] = ""
+                        i1++
+                    } else {
+                        edit[i - 1] = ""
+                        edit[i] = "</b>"
+                        i1 = 0
+                    }
+                }
+                if (edit[i - 1] == "*" && edit[i] != "*") {
+                    if (i2 == 0) {
+                        edit[i - 1] = "<i>"
+                        i2++
+                    } else {
+                        edit[i - 1] = "</i>"
+                        i2 = 0
+                    }
+                }
+                if ((edit[i] == "*" && i == word.length - 1) || (edit[i] == "*" && word.length == 1)) {
+                    if (i2 == 0) {
+                        edit[i] = "<i>"
+                        i2++
+                    } else {
+                        edit[i] = "</i>"
+                        i2 = 0
+                    }
+                }
+                if (edit[i - 1] == "~" && edit[i] == "~") {
+                    if (i3 == 0) {
+                        edit[i - 1] = "<s>"
+                        edit[i] = ""
+                        i3++
+                    } else {
+                        edit[i - 1] = ""
+                        edit[i] = "</s>"
+                        i3 = 0
+                    }
+                }
+
+                for ((x, letter) in edit) {
+                    writer.write(letter)
+                }
+            }
+        }
+    }
+    writer.write("</p>")
+    writer.write("</body></html>")
+    writer.close()
 }
 
 /**
