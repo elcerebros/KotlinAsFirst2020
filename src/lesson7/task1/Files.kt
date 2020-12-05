@@ -349,10 +349,7 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
             numP = 0
         } else {
             numP++
-            for ((indOfWord, word) in line.split(Regex("\\s")).withIndex()) {
-                if (indOfWord != 0) {
-                    writer.write(" ")
-                }
+            for ((indOfWord, word) in line.split(Regex("\\s+\\t+\\n+")).withIndex()) {
                 val edit = mutableMapOf<Int, String>()
                 var i = 0
                 for (letter in word) {
@@ -411,7 +408,6 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
     writer.write("</p></body></html>")
     writer.close()
 }
-
 
 /**
  * Сложная (23 балла)
