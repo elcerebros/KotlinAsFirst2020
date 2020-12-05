@@ -510,71 +510,52 @@ fun markdownToHtmlLists(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
     val a = mutableMapOf<Int, Int>(0 to 0, 1 to 0, 2 to 0, 3 to 0, 4 to 0, 5 to 0, 6 to 0)
     val b = mutableMapOf<Int, Int>(0 to 0, 1 to 0, 2 to 0, 3 to 0, 4 to 0, 5 to 0, 6 to 0)
-    var current = -1
+    var last = -1
     writer.write("<html><body><p>")
 
     fun transliterartion(x: String, line: String, writer: BufferedWriter): BufferedWriter {
-        val spaces = numOfSpaces(line) / 4
-        var paragraph1 = ""
-        var paragraph2 = ""
-        if (x == "*") {
-            paragraph1 = "ul"
-            paragraph2 = "ol"
-        } else {
-            paragraph1 = "ol"
-            paragraph2 = "ul"
-        }
+        val current = numOfSpaces(line) / 4
+        val paragraph1 = if (x == "*") "ul"
+        else "ol"
         when {
-            current < spaces -> {
+            last < current -> {
                 writer.write("<$paragraph1>")
                 writer.write("<li>")
-                a[spaces] = a[spaces]!! + 1
-                for ((indOfWord, word) in line.split(Regex("\\s[$x]|[$x]")).withIndex()) {
-                    if (indOfWord != 0) {
-                        writer.write(" ")
-                    }
-                    writer.write(word)
-                }
+                if (x == "*") a[current] = a[current]!! + 1
+                else b[current] = b[current]!! + 1
             }
-            current > spaces -> {
-                if (a[current] == 1 || b[current] == 1) writer.write("</li>")
+            last > current -> {
+                writer.write("</li>")
                 when {
-                    a[current] != 0 -> writer.write("</$paragraph1></li>")
-                    b[current] != 0 -> writer.write("</$paragraph2></li>")
+                    a[last] != 0 -> writer.write("</ul>")
+                    b[last] != 0 -> writer.write("</ol>")
                 }
-                if (a[spaces] != 0 || b[spaces] != 0) writer.write("<li>")
-                a[spaces] = 0
-                for ((indOfWord, word) in line.split(Regex("\\s[$x]|[$x]")).withIndex()) {
-                    if (indOfWord != 0) {
-                        writer.write(" ")
-                    }
-                    writer.write(word)
-                }
+                writer.write("</li><li>")
+                if (x == "*") a[last] = 0
+                else b[last] = 0
             }
             else -> {
-                if (a[spaces] == 1) writer.write("</li>")
-                writer.write("<li>")
-                a[spaces] = a[spaces]!! + 1
-                for ((indOfWord, word) in line.split(Regex("\\s[$x]|[$x]")).withIndex()) {
-                    if (indOfWord != 0) {
-                        writer.write(" ")
-                    }
-                    writer.write(word)
-                }
-                writer.write("</li>")
+                writer.write("</li><li>")
+                if (x == "*") a[current] = a[current]!! + 1
+                else b[current] = b[current]!! + 1
             }
         }
-        current = spaces
+        for (word in line.split(Regex("\\s[$x]|[$x]"))) {
+            writer.write(word)
+        }
+        last = current
         return writer
     }
 
-
     for (line in File(inputName).readLines()) {
-        if (Regex("[*]").find(line) != null) {
-            transliterartion("*", line, writer)
-        }
-        if (Regex("[0-9.]").find(line) != null) {
-            transliterartion("0-9.", line, writer)
+        when {
+            Regex("[*]").find(line) != null -> {
+                transliterartion("*", line, writer)
+            }
+            Regex("[0-9.]").find(line) != null -> {
+                transliterartion("0-9.", line, writer)
+            }
+            else -> continue
         }
 
     }
