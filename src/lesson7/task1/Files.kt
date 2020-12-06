@@ -337,72 +337,75 @@ Suspendisse <s>et elit in enim tempus iaculis</s>.
  */
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
+    val check = mutableMapOf<Int, Int>(1 to 0, 2 to 0, 3 to 0)
     var numP = 0
-    var i1 = 0
-    var i2 = 0
-    var i3 = 0
     writer.write("<html><body><p>")
 
+    fun edit(word: String, writer: BufferedWriter): BufferedWriter {
+        val edit = mutableMapOf<Int, String>()
+        for (i in word.indices) {
+            edit[i] = word[i].toString()
+        }
+
+        for (i in word.indices) {
+            when {
+                edit[i - 1] == "*" && edit[i] == "*" -> {
+                    if (check[1] == 0) {
+                        edit[i - 1] = "<b>"
+                        edit[i] = ""
+                        check[1] = check[1]!! + 1
+                    } else {
+                        edit[i - 1] = ""
+                        edit[i] = "</b>"
+                        check[1] = 0
+                    }
+                }
+                edit[i - 1] == "*" && edit[i] != "*" -> {
+                    if (check[2] == 0) {
+                        edit[i - 1] = "<i>"
+                        check[2] = check[2]!! + 1
+                    } else {
+                        edit[i - 1] = "</i>"
+                        check[2] = 0
+                    }
+                }
+                (edit[i] == "*" && i == word.length - 1) || (edit[i] == "*" && word.length == 1) -> {
+                    if (check[2] == 0) {
+                        edit[i] = "<i>"
+                        check[2] = check[2]!! + 1
+                    } else {
+                        edit[i] = "</i>"
+                        check[2] = 0
+                    }
+                }
+                edit[i - 1] == "~" && edit[i] == "~" -> {
+                    if (check[3] == 0) {
+                        edit[i - 1] = "<s>"
+                        edit[i] = ""
+                        check[3] = check[3]!! + 1
+                    } else {
+                        edit[i - 1] = ""
+                        edit[i] = "</s>"
+                        check[3] = 0
+                    }
+                }
+            }
+        }
+        for ((x, letter) in edit) {
+            writer.write(letter)
+        }
+        return writer
+    }
+
     for ((x, line) in File(inputName).readLines().withIndex()) {
-        if ((line.isEmpty() || (numOfSpaces(line) != 0 && line.length == numOfSpaces(line))) && numP != 0 && x != 0) {
+        if (line.length == numOfSpaces(line) && numP != 0 && x != 0) {
             writer.write("</p><p>")
             numP = 0
         } else {
-            numP++
-            for ((indOfWord, word) in line.split(Regex("\\s+\\t+\\n+")).withIndex()) {
-                val edit = mutableMapOf<Int, String>()
-                var i = 0
-                for (letter in word) {
-                    edit[i] = letter.toString()
-                    i++
-                }
-
-                for (i in word.indices) {
-                    if (edit[i - 1] == "*" && edit[i] == "*") {
-                        if (i1 == 0) {
-                            edit[i - 1] = "<b>"
-                            edit[i] = ""
-                            i1++
-                        } else {
-                            edit[i - 1] = ""
-                            edit[i] = "</b>"
-                            i1 = 0
-                        }
-                    }
-                    if (edit[i - 1] == "*" && edit[i] != "*") {
-                        if (i2 == 0) {
-                            edit[i - 1] = "<i>"
-                            i2++
-                        } else {
-                            edit[i - 1] = "</i>"
-                            i2 = 0
-                        }
-                    }
-                    if ((edit[i] == "*" && i == word.length - 1) || (edit[i] == "*" && word.length == 1)) {
-                        if (i2 == 0) {
-                            edit[i] = "<i>"
-                            i2++
-                        } else {
-                            edit[i] = "</i>"
-                            i2 = 0
-                        }
-                    }
-                    if (edit[i - 1] == "~" && edit[i] == "~") {
-                        if (i3 == 0) {
-                            edit[i - 1] = "<s>"
-                            edit[i] = ""
-                            i3++
-                        } else {
-                            edit[i - 1] = ""
-                            edit[i] = "</s>"
-                            i3 = 0
-                        }
-                    }
-                }
-                for ((x, letter) in edit) {
-                    writer.write(letter)
-                }
+            for (word in line.split(Regex("\\s+"))) {
+                edit(word, writer)
             }
+            numP++
         }
     }
     writer.write("</p></body></html>")
