@@ -511,6 +511,7 @@ fun markdownToHtmlLists(inputName: String, outputName: String) {
     val a = mutableMapOf<Int, Int>(0 to 0, 1 to 0, 2 to 0, 3 to 0, 4 to 0, 5 to 0, 6 to 0)
     val b = mutableMapOf<Int, Int>(0 to 0, 1 to 0, 2 to 0, 3 to 0, 4 to 0, 5 to 0, 6 to 0)
     var last = -1
+    var xLast = ""
     writer.write("<html><body><p>")
 
     fun transliterartion(x: String, line: String, writer: BufferedWriter): BufferedWriter {
@@ -531,7 +532,7 @@ fun markdownToHtmlLists(inputName: String, outputName: String) {
                     b[last] != 0 -> writer.write("</ol>")
                 }
                 writer.write("</li><li>")
-                if (x == "*") a[last] = 0
+                if (xLast == "*") a[last] = 0
                 else b[last] = 0
             }
             else -> {
@@ -543,6 +544,7 @@ fun markdownToHtmlLists(inputName: String, outputName: String) {
         for (word in line.split(Regex("\\s[$x]|[$x]"))) {
             writer.write(word)
         }
+        xLast = x
         last = current
         return writer
     }
