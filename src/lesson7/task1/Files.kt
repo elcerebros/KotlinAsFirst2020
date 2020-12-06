@@ -337,7 +337,7 @@ Suspendisse <s>et elit in enim tempus iaculis</s>.
  */
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
-    val check = mutableMapOf<Int, Int>(1 to 0, 2 to 0, 3 to 0)
+    val check = mutableListOf(0, 0, 0)
     var numP = 0
     writer.write("<html><body><p>")
 
@@ -350,43 +350,43 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
         for (i in word.indices) {
             when {
                 edit[i - 1] == "*" && edit[i] == "*" -> {
-                    if (check[1] == 0) {
+                    if (check[0] == 0) {
                         edit[i - 1] = "<b>"
                         edit[i] = ""
-                        check[1] = check[1]!! + 1
+                        check[0]++
                     } else {
                         edit[i - 1] = ""
                         edit[i] = "</b>"
-                        check[1] = 0
+                        check[0] = 0
                     }
                 }
                 edit[i - 1] == "*" && edit[i] != "*" -> {
-                    if (check[2] == 0) {
+                    if (check[1] == 0) {
                         edit[i - 1] = "<i>"
-                        check[2] = check[2]!! + 1
+                        check[1]++
                     } else {
                         edit[i - 1] = "</i>"
-                        check[2] = 0
+                        check[1] = 0
                     }
                 }
                 (edit[i] == "*" && i == word.length - 1) || (edit[i] == "*" && word.length == 1) -> {
-                    if (check[2] == 0) {
+                    if (check[1] == 0) {
                         edit[i] = "<i>"
-                        check[2] = check[2]!! + 1
+                        check[1]++
                     } else {
                         edit[i] = "</i>"
-                        check[2] = 0
+                        check[1] = 0
                     }
                 }
                 edit[i - 1] == "~" && edit[i] == "~" -> {
-                    if (check[3] == 0) {
+                    if (check[2] == 0) {
                         edit[i - 1] = "<s>"
                         edit[i] = ""
-                        check[3] = check[3]!! + 1
+                        check[2]++
                     } else {
                         edit[i - 1] = ""
                         edit[i] = "</s>"
-                        check[3] = 0
+                        check[2] = 0
                     }
                 }
             }
@@ -511,8 +511,8 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
  */
 fun markdownToHtmlLists(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
-    val a = mutableMapOf<Int, Int>(0 to 0, 1 to 0, 2 to 0, 3 to 0, 4 to 0, 5 to 0, 6 to 0)
-    val b = mutableMapOf<Int, Int>(0 to 0, 1 to 0, 2 to 0, 3 to 0, 4 to 0, 5 to 0, 6 to 0)
+    val a = mutableListOf(0, 0, 0, 0, 0, 0, 0)
+    val b = mutableListOf(0, 0, 0, 0, 0, 0, 0)
     var last = -1
     var xLast = ""
     writer.write("<html><body><p>")
@@ -525,8 +525,8 @@ fun markdownToHtmlLists(inputName: String, outputName: String) {
             last < current -> {
                 writer.write("<$paragraph1>")
                 writer.write("<li>")
-                if (x == "*") a[current] = a[current]!! + 1
-                else b[current] = b[current]!! + 1
+                if (x == "*") a[current]++
+                else b[current]++
             }
             last > current -> {
                 writer.write("</li>")
@@ -540,8 +540,8 @@ fun markdownToHtmlLists(inputName: String, outputName: String) {
             }
             else -> {
                 writer.write("</li><li>")
-                if (x == "*") a[current] = a[current]!! + 1
-                else b[current] = b[current]!! + 1
+                if (x == "*") a[current]++
+                else b[current]++
             }
         }
         for (word in line.split(Regex("\\s[$x]|[$x]"))) {
