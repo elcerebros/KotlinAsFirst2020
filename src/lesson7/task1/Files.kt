@@ -118,7 +118,7 @@ fun sibilants(inputName: String, outputName: String) {
 fun numOfSpaces(line: String): Int {
     var num = 0
     for (letter in line) {
-        if (letter.toString() == " ") {
+        if (letter.isWhitespace()) {
             num++
         } else break
     }
@@ -128,7 +128,7 @@ fun numOfSpaces(line: String): Int {
 fun numOfSpacesBack(line: String): Int {
     var num = 0
     for (i in line.length - 1 downTo 0) {
-        if (line[i].toString() == " ") {
+        if (line[i].isWhitespace()) {
             num++
         } else break
     }
@@ -136,36 +136,26 @@ fun numOfSpacesBack(line: String): Int {
 }
 
 fun centerFile(inputName: String, outputName: String) {
-    val writer = File(outputName).bufferedWriter()
-    var max = 0
-    for (line in File(inputName).readLines()) {
-        if (line.length > max) {
-            max = line.length
+    File(outputName).bufferedWriter().use {
+        var max = 0
+        for (line in File(inputName).readLines()) {
+            if (line.length - numOfSpaces(line) - numOfSpacesBack(line) > max) {
+                max = line.length - numOfSpaces(line) - numOfSpacesBack(line)
+            }
+        }
+
+        for (line in File(inputName).readLines()) {
             val numOfSpaces = numOfSpaces(line)
             val numOfSpacesBack = numOfSpacesBack(line)
-            max -= numOfSpaces + numOfSpacesBack
-        }
-    }
+            val gap = kotlin.math.abs((max - line.length + numOfSpacesBack + numOfSpaces) / 2) - numOfSpaces
 
-    for (line in File(inputName).readLines()) {
-        val numOfSpaces = numOfSpaces(line)
-        val numOfSpacesBack = numOfSpacesBack(line)
-        val gap = kotlin.math.abs((max - line.length + numOfSpacesBack + numOfSpaces) / 2) - numOfSpaces
-
-        for (i in 0 until gap) {
-            writer.write(" ")
-        }
-
-        for ((indOfWord, word) in line.split(Regex("\\s")).withIndex()) {
-            if (indOfWord != 0) {
-                writer.write(" ")
+            for (i in 0 until gap) {
+                it.write(" ")
             }
-            writer.write(word)
+            it.write(line)
+            it.newLine()
         }
-        writer.newLine()
     }
-
-    writer.close()
 }
 
 /**
@@ -342,71 +332,62 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
     writer.write("<html><body><p>")
 
     fun edit(word: String, writer: BufferedWriter): BufferedWriter {
-        val edit = mutableMapOf<Int, String>()
+        val edit = StringBuilder()
         for (i in word.indices) {
-            edit[i] = word[i].toString()
-        }
-
-        for (i in word.indices) {
+            edit.append(word[i])
             when {
-                edit[i - 1] == "*" && edit[i] == "*" -> {
+                word.getOrNull(i - 1).toString() == "*" && word.getOrNull(i).toString() == "*" -> {
                     if (check[0] == 0) {
-                        edit[i - 1] = "<b>"
-                        edit[i] = ""
+                        edit.deleteAt(i - 2)
+                                .appendRange("<b>", i - 2, i - 2)
+                                .deleteAt(i - 1)
                         check[0]++
                     } else {
-                        edit[i - 1] = ""
-                        edit[i] = "</b>"
+                        edit.deleteAt(i - 2)
+                                .deleteAt(i - 1)
+                                .appendRange("<b>", i - 1, i - 1)
                         check[0] = 0
                     }
                 }
-                edit[i - 1] == "*" && edit[i] != "*" -> {
+                (word.getOrNull(i - 1).toString() == "*" && word.getOrNull(i).toString() != "*") ||
+                        (word.getOrNull(i).toString() == "*" && i == word.length) -> {
                     if (check[1] == 0) {
-                        edit[i - 1] = "<i>"
+                        edit.deleteAt(i - 2)
+                                .appendRange("<i>", i - 2, i - 2)
                         check[1]++
                     } else {
-                        edit[i - 1] = "</i>"
+                        edit.deleteAt(i - 2)
+                                .appendRange("</i>", i - 2, i - 2)
                         check[1] = 0
                     }
                 }
-                (edit[i] == "*" && i == word.length - 1) || (edit[i] == "*" && word.length == 1) -> {
-                    if (check[1] == 0) {
-                        edit[i] = "<i>"
-                        check[1]++
-                    } else {
-                        edit[i] = "</i>"
-                        check[1] = 0
-                    }
-                }
-                edit[i - 1] == "~" && edit[i] == "~" -> {
+                word.getOrNull(i - 1).toString() == "~" && word.getOrNull(i).toString() == "~" -> {
                     if (check[2] == 0) {
-                        edit[i - 1] = "<s>"
-                        edit[i] = ""
+                        edit.deleteAt(i - 2)
+                                .appendRange("<s>", i - 2, i - 2)
+                                .deleteAt(i - 1)
                         check[2]++
                     } else {
-                        edit[i - 1] = ""
-                        edit[i] = "</s>"
+                        edit.deleteAt(i - 2)
+                                .deleteAt(i - 1)
+                                .appendRange("</s>", i - 1, i - 1)
                         check[2] = 0
                     }
                 }
             }
         }
-        for ((x, letter) in edit) {
-            writer.write(letter)
-        }
         return writer
     }
 
     for ((x, line) in File(inputName).readLines().withIndex()) {
-        if (line.length == numOfSpaces(line) && numP != 0 && x != 0) {
+        if (Regex("\\s+").find(line) != null || line.isEmpty()) {
             writer.write("</p><p>")
             numP = 0
-        } else {
-            for (word in line.split(Regex("\\s+"))) {
-                edit(word, writer)
-            }
-            numP++
         }
+        for (word in line.split(Regex("\\s+"))) {
+            writer.write(edit(word, writer).toString())
+        }
+        numP++
     }
     writer.write("</p></body></html>")
     writer.close()
@@ -511,8 +492,8 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
  */
 fun markdownToHtmlLists(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
-    val a = mutableListOf(0, 0, 0, 0, 0, 0, 0)
-    val b = mutableListOf(0, 0, 0, 0, 0, 0, 0)
+    val unnum = mutableListOf(0, 0, 0, 0, 0, 0, 0)
+    val num = mutableListOf(0, 0, 0, 0, 0, 0, 0)
     var last = -1
     var xLast = ""
     writer.write("<html><body><p>")
@@ -525,23 +506,23 @@ fun markdownToHtmlLists(inputName: String, outputName: String) {
             last < current -> {
                 writer.write("<$paragraph1>")
                 writer.write("<li>")
-                if (x == "*") a[current]++
-                else b[current]++
+                if (x == "*") unnum[current]++
+                else num[current]++
             }
             last > current -> {
                 writer.write("</li>")
                 when {
-                    a[last] != 0 -> writer.write("</ul>")
-                    b[last] != 0 -> writer.write("</ol>")
+                    unnum[last] != 0 -> writer.write("</ul>")
+                    num[last] != 0 -> writer.write("</ol>")
                 }
                 writer.write("</li><li>")
-                if (xLast == "*") a[last] = 0
-                else b[last] = 0
+                if (xLast == "*") unnum[last] = 0
+                else num[last] = 0
             }
             else -> {
                 writer.write("</li><li>")
-                if (x == "*") a[current]++
-                else b[current]++
+                if (x == "*") unnum[current]++
+                else num[current]++
             }
         }
         for (word in line.split(Regex("\\s[$x]|[$x]"))) {
@@ -554,18 +535,18 @@ fun markdownToHtmlLists(inputName: String, outputName: String) {
 
     for (line in File(inputName).readLines()) {
         when {
-            Regex("[*]").find(line) != null -> {
+            Regex("[*]\\s").find(line) != null -> {
                 transliterartion("*", line, writer)
             }
-            Regex("[0-9.]").find(line) != null -> {
+            Regex("[0-9.]\\s").find(line) != null -> {
                 transliterartion("0-9.", line, writer)
             }
             else -> continue
         }
     }
     for (i in 6 downTo 0) {
-        if (a[i] != 0) writer.write("</li></ul>")
-        if (b[i] != 0) writer.write("</li></ol>")
+        if (unnum[i] != 0) writer.write("</li></ul>")
+        if (num[i] != 0) writer.write("</li></ol>")
     }
     writer.write("</p></body></html>")
     writer.close()

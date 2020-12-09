@@ -79,10 +79,7 @@ data class Circle(val center: Point, val radius: Double) {
      * расстояние между их центрами минус сумма их радиусов.
      * Расстояние между пересекающимися окружностями считать равным 0.0.
      */
-    fun distance(other: Circle): Double =
-            if (center.distance(other.center) > radius + other.radius) {
-                center.distance(other.center) - radius - other.radius
-            } else 0.0
+    fun distance(other: Circle): Double = max(0.0, center.distance(other.center) - radius - other.radius)
 
     /**
      * Тривиальная (1 балл)
@@ -113,11 +110,12 @@ fun diameter(vararg points: Point): Segment {
     var maxSeg = Segment(Point(0.0, 0.0), Point(0.0, 0.0))
     var max = -1.0
     if (points.size < 2) throw IllegalArgumentException()
-    for (a in points) {
-        for (b in points) {
-            if (a.distance(b) > max) {
-                maxSeg = Segment(a, b)
-                max = a.distance(b)
+    for (i in 0..points.size - 2) {
+        for (j in i + 1 until points.size) {
+            val current = points[i].distance(points[j])
+            if (current > max) {
+                maxSeg = Segment(points[i], points[j])
+                max = current
             }
         }
     }
@@ -131,7 +129,7 @@ fun diameter(vararg points: Point): Segment {
  * Центр её должен находиться посередине между точками, а радиус составлять половину расстояния между ними
  */
 fun circleByDiameter(diameter: Segment): Circle =
-        Circle(Point((abs(diameter.begin.x - diameter.end.x) / 2), abs(diameter.begin.y - diameter.end.y) / 2),
+        Circle(Point((diameter.end.x + diameter.begin.x) / 2,(diameter.end.y + diameter.begin.y) / 2),
                 diameter.begin.distance(diameter.end) / 2)
 
 /**
