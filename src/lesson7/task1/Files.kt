@@ -332,62 +332,57 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
     writer.write("<html><body><p>")
 
     fun edit(word: String, writer: BufferedWriter): BufferedWriter {
-        val edit = StringBuilder()
         for (i in word.indices) {
-            edit.append(word[i])
             when {
-                word.getOrNull(i - 1).toString() == "*" && word.getOrNull(i).toString() == "*" -> {
+                word.getOrNull(i - 2).toString() != "*" && word.getOrNull(i - 1).toString() == "*"
+                        && word.getOrNull(i).toString() == "*" -> {
                     if (check[0] == 0) {
-                        edit.deleteAt(i - 2)
-                                .appendRange("<b>", i - 2, i - 2)
-                                .deleteAt(i - 1)
+                        writer.write("<b>")
                         check[0]++
                     } else {
-                        edit.deleteAt(i - 2)
-                                .deleteAt(i - 1)
-                                .appendRange("<b>", i - 1, i - 1)
+                        writer.write("</b>")
                         check[0] = 0
                     }
                 }
-                (word.getOrNull(i - 1).toString() == "*" && word.getOrNull(i).toString() != "*") ||
-                        (word.getOrNull(i).toString() == "*" && i == word.length) -> {
+                (word.getOrNull(i - 2).toString() != "*" && word.getOrNull(i - 1).toString() == "*"
+                        && word.getOrNull(i).toString() != "*") ||
+                        (word.getOrNull(i).toString() == "*" && i == word.length - 1) ||
+                        (word.getOrNull(i - 2).toString() == "*" && word.getOrNull(i - 1).toString() == "*"
+                                && word.getOrNull(i).toString() == "*") -> {
                     if (check[1] == 0) {
-                        edit.deleteAt(i - 2)
-                                .appendRange("<i>", i - 2, i - 2)
+                        writer.write("<i>")
                         check[1]++
                     } else {
-                        edit.deleteAt(i - 2)
-                                .appendRange("</i>", i - 2, i - 2)
+                        writer.write("</i>")
                         check[1] = 0
                     }
+                    if (word[i].toString() != "*" && word[i].toString() != "~") writer.write(word[i].toString())
                 }
                 word.getOrNull(i - 1).toString() == "~" && word.getOrNull(i).toString() == "~" -> {
                     if (check[2] == 0) {
-                        edit.deleteAt(i - 2)
-                                .appendRange("<s>", i - 2, i - 2)
-                                .deleteAt(i - 1)
+                        writer.write("<s>")
                         check[2]++
                     } else {
-                        edit.deleteAt(i - 2)
-                                .deleteAt(i - 1)
-                                .appendRange("</s>", i - 1, i - 1)
+                        writer.write("</s>")
                         check[2] = 0
                     }
                 }
+                else -> if (word[i].toString() != "*" && word[i].toString() != "~") writer.write(word[i].toString())
             }
         }
         return writer
     }
 
     for ((x, line) in File(inputName).readLines().withIndex()) {
-        if (Regex("\\s+").find(line) != null || line.isEmpty()) {
+        if (Regex("[A-za-z0-9.,~*]").find(line) == null && numP != 0) {
             writer.write("</p><p>")
             numP = 0
+        } else {
+            for (word in line.split(Regex("\\s+"))) {
+                edit(word, writer)
+            }
+            numP++
         }
-        for (word in line.split(Regex("\\s+"))) {
-            writer.write(edit(word, writer).toString())
-        }
-        numP++
     }
     writer.write("</p></body></html>")
     writer.close()
