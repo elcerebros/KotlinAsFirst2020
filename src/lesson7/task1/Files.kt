@@ -368,26 +368,26 @@ fun transliterationSimple(word: String, check: MutableList<Int>, writer: Buffere
 }
 
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
-    val writer = File(outputName).bufferedWriter()
     val check = mutableListOf(0, 0, 0)
     var numP = 1
-    writer.write("<html><body><p>")
 
-    for (line in File(inputName).readLines()) {
-        when {
-            Regex("[^\\s]").find(line) == null && numP != 0 -> {
-                writer.write("</p><p>")
-                numP = 0
-            }
-            Regex("[^\\s]").find(line) != null -> {
-                for (word in line.split(Regex("\\s+"))) {
-                    transliterationSimple(word, check, writer)
+    File(outputName).bufferedWriter().use {
+        it.write("<html><body><p>")
+        for (line in File(inputName).readLines()) {
+            when {
+                Regex("[^\\s]").find(line) == null && numP != 0 -> {
+                    it.write("</p><p>")
+                    numP = 0
+                }
+                Regex("[^\\s]").find(line) != null -> {
+                    for (word in line.split(Regex("\\s+"))) {
+                        transliterationSimple(word, check, it)
+                    }
                 }
             }
         }
+        it.write("</p></body></html>")
     }
-    writer.write("</p></body></html>")
-    writer.close()
 }
 
 /**
