@@ -325,7 +325,7 @@ Suspendisse <s>et elit in enim tempus iaculis</s>.
  *
  * (Отступы и переносы строк в примере добавлены для наглядности, при решении задачи их реализовывать не обязательно)
  */
-fun edit(word: String, check: MutableList<Int>, writer: BufferedWriter): BufferedWriter {
+fun transliterationSimple(word: String, check: MutableList<Int>, writer: BufferedWriter): BufferedWriter {
     for (i in word.indices) {
         when {
             word.getOrNull(i - 2).toString() != "*" && word.getOrNull(i - 1).toString() == "*"
@@ -385,7 +385,7 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
                     numP++
                 }
                 for (word in line.split(Regex("\\s+"))) {
-                    edit(word, check, writer)
+                    transliterationSimple(word, check, writer)
                 }
             }
         }
@@ -492,8 +492,8 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
 ///////////////////////////////конец файла//////////////////////////////////////////////////////////////////////////////
  * (Отступы и переносы строк в примере добавлены для наглядности, при решении задачи их реализовывать не обязательно)
  */
-fun transliterartion(x: String, line: String, num: MutableList<Int>, unnum: MutableList<Int>, last: Int, xLast: String,
-                     writer: BufferedWriter): Pair<Int, String> {
+fun transliterationLists(x: String, line: String, num: MutableList<Int>, unnum: MutableList<Int>, last: Int, xLast: String,
+                         writer: BufferedWriter): Pair<Int, String> {
     val current = numOfSpaces(line) / 4
     val paragraph1 = if (x == "*") "ul"
     else "ol"
@@ -537,12 +537,12 @@ fun markdownToHtmlLists(inputName: String, outputName: String) {
     for (line in File(inputName).readLines()) {
         when {
             Regex("[*]\\s").find(line) != null -> {
-                val x = transliterartion("*", line, num, unnum, last, xLast, writer)
+                val x = transliterationLists("*", line, num, unnum, last, xLast, writer)
                 last = x.first
                 xLast = x.second
             }
             Regex("[0-9.]\\s").find(line) != null -> {
-                val x = transliterartion("0-9.", line, num, unnum, last, xLast, writer)
+                val x = transliterationLists("0-9.", line, num, unnum, last, xLast, writer)
                 last = x.first
                 xLast = x.second
             }
@@ -582,19 +582,19 @@ fun markdownToHtml(inputName: String, outputName: String) {
             numP = 0
         } else {
             when {
-                Regex("^[*]\\s").find(line) != null -> {
-                    val x = transliterartion("*", line, num, unnum, last, xLast, writer)
-                    last = x.first
-                    xLast = x.second
+                Regex("\\s+[*]\\s").find(line) != null -> {
+                    val a = transliterationLists("*", line, num, unnum, last, xLast, writer)
+                    last = a.first
+                    xLast = a.second
                 }
-                Regex("^[0-9.]\\s").find(line) != null -> {
-                    val x = transliterartion("0-9.", line, num, unnum, last, xLast, writer)
-                    last = x.first
-                    xLast = x.second
+                Regex("\\s+[0-9.]\\s").find(line) != null -> {
+                    val a = transliterationLists("0-9.", line, num, unnum, last, xLast, writer)
+                    last = a.first
+                    xLast = a.second
                 }
                 else -> {
                     for (word in line.split(Regex("\\s+"))) {
-                        edit(word, check, writer)
+                        transliterationSimple(word, check, writer)
                     }
                 }
             }
