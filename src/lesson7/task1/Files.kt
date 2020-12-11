@@ -374,7 +374,7 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
     }
 
     for ((x, line) in File(inputName).readLines().withIndex()) {
-        if (Regex("[A-za-z0-9.,~*]").find(line) == null && numP != 0) {
+        if (Regex("[A-za-z0-9.,~*=:;/+&^$#()-]").find(line) == null && numP != 0) {
             writer.write("</p><p>")
             numP = 0
         } else {
