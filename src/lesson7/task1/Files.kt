@@ -368,25 +368,27 @@ fun transliterationSimple(word: String, check: MutableList<Int>, writer: Buffere
 }
 
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
-    File(outputName).bufferedWriter().use {
-        val check = mutableListOf(0, 0, 0)
-        var numP = 1
-        it.write("<html><body><p>")
-        for (line in File(inputName).readLines()) {
-            when {
-                Regex("[^\\s]").find(line) == null && numP != 0 -> {
-                    it.write("</p><p>")
-                    numP = 0
-                }
-                Regex("[^\\s]").find(line) != null -> {
-                    for (word in line.split(Regex("\\s+"))) {
-                        transliterationSimple(word, check, it)
-                    }
+    val writer = File(outputName).bufferedWriter()
+    val check = mutableListOf(0, 0, 0)
+    var numP = 1
+    writer.write("<html><body><p>")
+
+    for (line in File(inputName).readLines()) {
+        when {
+            Regex("[^\\s]").find(line) == null && numP != 0 -> {
+                writer.write("</p><p>")
+                numP = 0
+            }
+            Regex("[^\\s]").find(line) != null -> {
+                for (word in line.split(Regex("\\s+"))) {
+                    transliterationSimple(word, check, writer)
                 }
             }
         }
-        it.write("</p></body></html>")
     }
+
+    writer.write("</p></body></html>")
+    writer.close()
 }
 
 /**
@@ -560,48 +562,55 @@ fun markdownToHtmlLists(inputName: String, outputName: String) {
  *
  */
 fun markdownToHtml(inputName: String, outputName: String) {
-    val writer = File(outputName).bufferedWriter()
-    val unnum = mutableListOf(0, 0, 0, 0, 0, 0, 0)
-    val num = mutableListOf(0, 0, 0, 0, 0, 0, 0)
-    val check = mutableListOf(0, 0, 0)
-    var last = -1
-    var xLast = ""
-    var numP = 0
-    writer.write("<html><body><p>")
+    File(outputName).bufferedWriter().use {
+        val unnum = mutableListOf(0, 0, 0, 0, 0, 0, 0)
+        val num = mutableListOf(0, 0, 0, 0, 0, 0, 0)
+        val check = mutableListOf(0, 0, 0)
+        var last = -1
+        var xLast = ""
+        var numP = 0
+        it.write("<html><body><p>")
 
-
-    for ((x, line) in File(inputName).readLines().withIndex()) {
-        if (line.length == numOfSpaces(line) && numP != 0 && x != 0) {
-            writer.write("</p><p>")
-            numP = 0
-        } else {
-            when {
-                Regex("\\s+[*]\\s").find(line) != null -> {
-                    val a = transliterationLists("*", line, num, unnum, last, xLast, writer)
-                    last = a.first
-                    xLast = a.second
-                }
-                Regex("\\s+[0-9.]\\s").find(line) != null -> {
-                    val a = transliterationLists("0-9.", line, num, unnum, last, xLast, writer)
-                    last = a.first
-                    xLast = a.second
-                }
-                else -> {
-                    for (word in line.split(Regex("\\s+"))) {
-                        transliterationSimple(word, check, writer)
+        for ((x, line) in File(inputName).readLines().withIndex()) {
+            if (line.length == numOfSpaces(line) && numP != 0 && x != 0) {
+                it.write("</p><p>")
+                numP = 0
+            } else {
+                when {
+                    Regex("\\s+[*]\\s").find(line) != null -> {
+                        val a = transliterationLists("*", line, num, unnum, last, xLast, it)
+                        last = a.first
+                        xLast = a.second
+                    }
+                    Regex("\\s+[0-9.]\\s").find(line) != null -> {
+                        val a = transliterationLists("0-9.", line, num, unnum, last, xLast, it)
+                        last = a.first
+                        xLast = a.second
+                    }
+                    Regex("[^\\s]").find(line) == null && numP != 0 -> {
+                        it.write("</p><p>")
+                        numP = 0
+                        for (i in 0 until num.size) {
+                            num[i] = 0
+                            unnum[i] = 0
+                        }
+                    }
+                    Regex("[^\\s]").find(line) != null -> {
+                        for (word in line.split(Regex("\\s+"))) {
+                            transliterationSimple(word, check, it)
+                        }
                     }
                 }
+                numP++
             }
-            numP++
         }
-    }
 
-    for (i in 6 downTo 0) {
-        if (unnum[i] != 0) writer.write("</li></ul>")
-        if (num[i] != 0) writer.write("</li></ol>")
+        for (i in 6 downTo 0) {
+            if (unnum[i] != 0) it.write("</li></ul>")
+            if (num[i] != 0) it.write("</li></ol>")
+        }
+        it.write("</p></body></html>")
     }
-    writer.write("</p></body></html>")
-    writer.close()
 }
 
 /**
