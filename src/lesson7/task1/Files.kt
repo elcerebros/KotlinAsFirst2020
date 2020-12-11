@@ -368,10 +368,9 @@ fun transliterationSimple(word: String, check: MutableList<Int>, writer: Buffere
 }
 
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
-    val check = mutableListOf(0, 0, 0)
-    var numP = 1
-
     File(outputName).bufferedWriter().use {
+        val check = mutableListOf(0, 0, 0)
+        var numP = 1
         it.write("<html><body><p>")
         for (line in File(inputName).readLines()) {
             when {
@@ -522,34 +521,34 @@ fun transliterationLists(x: String, line: String, num: MutableList<Int>, unnum: 
 }
 
 fun markdownToHtmlLists(inputName: String, outputName: String) {
-    val writer = File(outputName).bufferedWriter()
     val unnum = mutableListOf(0, 0, 0, 0, 0, 0, 0)
     val num = mutableListOf(0, 0, 0, 0, 0, 0, 0)
     var last = -1
     var xLast = ""
-    writer.write("<html><body><p>")
 
-    for (line in File(inputName).readLines()) {
-        when {
-            Regex("[*]\\s").find(line) != null -> {
-                val x = transliterationLists("*", line, num, unnum, last, xLast, writer)
-                last = x.first
-                xLast = x.second
+    File(outputName).bufferedWriter().use {
+        it.write("<html><body><p>")
+        for (line in File(inputName).readLines()) {
+            when {
+                Regex("[*]\\s").find(line) != null -> {
+                    val x = transliterationLists("*", line, num, unnum, last, xLast, it)
+                    last = x.first
+                    xLast = x.second
+                }
+                Regex("[0-9.]\\s").find(line) != null -> {
+                    val x = transliterationLists("0-9.", line, num, unnum, last, xLast, it)
+                    last = x.first
+                    xLast = x.second
+                }
+                else -> continue
             }
-            Regex("[0-9.]\\s").find(line) != null -> {
-                val x = transliterationLists("0-9.", line, num, unnum, last, xLast, writer)
-                last = x.first
-                xLast = x.second
-            }
-            else -> continue
         }
+        for (i in 6 downTo 0) {
+            if (unnum[i] != 0) it.write("</li></ul>")
+            if (num[i] != 0) it.write("</li></ol>")
+        }
+        it.write("</p></body></html>")
     }
-    for (i in 6 downTo 0) {
-        if (unnum[i] != 0) writer.write("</li></ul>")
-        if (num[i] != 0) writer.write("</li></ol>")
-    }
-    writer.write("</p></body></html>")
-    writer.close()
 }
 
 /**
