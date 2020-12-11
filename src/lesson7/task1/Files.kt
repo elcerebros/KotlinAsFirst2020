@@ -371,20 +371,27 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
     val check = mutableListOf(0, 0, 0)
     var numP = 0
-    writer.write("<html><body><p>")
+    writer.write("<html><body>")
 
-    for ((x, line) in File(inputName).readLines().withIndex()) {
-        if (Regex("[^\\s]").find(line) == null && numP != 0) {
-            writer.write("</p><p>")
-            numP = 0
-        } else {
-            for (word in line.split(Regex("\\s+"))) {
-                edit(word, check, writer)
+    for (line in File(inputName).readLines()) {
+        when {
+            Regex("[^\\s]").find(line) == null && numP != 0 -> {
+                writer.write("</p>")
+                numP = 0
             }
-            numP++
+            Regex("[^\\s]").find(line) != null -> {
+                if (numP == 0) {
+                    writer.write("<p>")
+                    numP++
+                }
+                for (word in line.split(Regex("\\s+"))) {
+                    edit(word, check, writer)
+                }
+            }
         }
     }
-    writer.write("</p></body></html>")
+    if (numP != 0) writer.write("</p>")
+    writer.write("</body></html>")
     writer.close()
 }
 
@@ -560,104 +567,14 @@ fun markdownToHtmlLists(inputName: String, outputName: String) {
  */
 fun markdownToHtml(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
+    val unnum = mutableListOf(0, 0, 0, 0, 0, 0, 0)
+    val num = mutableListOf(0, 0, 0, 0, 0, 0, 0)
     val check = mutableListOf(0, 0, 0)
-    val a = mutableListOf(0, 0, 0, 0, 0, 0, 0)
-    val b = mutableListOf(0, 0, 0, 0, 0, 0, 0)
     var last = -1
     var xLast = ""
     var numP = 0
     writer.write("<html><body><p>")
 
-    fun edit(word: String, writer: BufferedWriter): BufferedWriter {
-        val edit = mutableMapOf<Int, String>()
-        for (i in word.indices) {
-            edit[i] = word[i].toString()
-        }
-
-        for (i in word.indices) {
-            when {
-                edit[i - 1] == "*" && edit[i] == "*" -> {
-                    if (check[0] == 0) {
-                        edit[i - 1] = "<b>"
-                        edit[i] = ""
-                        check[0]++
-                    } else {
-                        edit[i - 1] = ""
-                        edit[i] = "</b>"
-                        check[0] = 0
-                    }
-                }
-                edit[i - 1] == "*" && edit[i] != "*" -> {
-                    if (check[1] == 0) {
-                        edit[i - 1] = "<i>"
-                        check[1]++
-                    } else {
-                        edit[i - 1] = "</i>"
-                        check[1] = 0
-                    }
-                }
-                (edit[i] == "*" && i == word.length - 1) || (edit[i] == "*" && word.length == 1) -> {
-                    if (check[1] == 0) {
-                        edit[i] = "<i>"
-                        check[1]++
-                    } else {
-                        edit[i] = "</i>"
-                        check[1] = 0
-                    }
-                }
-                edit[i - 1] == "~" && edit[i] == "~" -> {
-                    if (check[2] == 0) {
-                        edit[i - 1] = "<s>"
-                        edit[i] = ""
-                        check[2]++
-                    } else {
-                        edit[i - 1] = ""
-                        edit[i] = "</s>"
-                        check[2] = 0
-                    }
-                }
-            }
-        }
-        for ((x, letter) in edit) {
-            writer.write(letter)
-        }
-        return writer
-    }
-
-    fun transliterartion(x: String, line: String, writer: BufferedWriter): BufferedWriter {
-        val current = numOfSpaces(line) / 4
-        val paragraph1 = if (x == "*") "ul"
-        else "ol"
-        when {
-            last < current -> {
-                writer.write("<$paragraph1>")
-                writer.write("<li>")
-                if (x == "*") a[current]++
-                else b[current]++
-            }
-            last > current -> {
-                writer.write("</li>")
-                when {
-                    a[last] != 0 -> writer.write("</ul>")
-                    b[last] != 0 -> writer.write("</ol>")
-                }
-                writer.write("</li><li>")
-                if (xLast == "*") a[last] = 0
-                else b[last] = 0
-            }
-            else -> {
-                writer.write("</li><li>")
-                if (x == "*") a[current]++
-                else b[current]++
-            }
-        }
-        for (word in line.split(Regex("\\s+[$x]|[$x]"))) {
-            writer.write(word)
-        }
-        xLast = x
-        last = current
-        return writer
-    }
 
     for ((x, line) in File(inputName).readLines().withIndex()) {
         if (line.length == numOfSpaces(line) && numP != 0 && x != 0) {
@@ -665,15 +582,19 @@ fun markdownToHtml(inputName: String, outputName: String) {
             numP = 0
         } else {
             when {
-                Regex("^[*]").find(line) != null -> {
-                    transliterartion("*", line, writer)
+                Regex("^[*]\\s").find(line) != null -> {
+                    val x = transliterartion("*", line, num, unnum, last, xLast, writer)
+                    last = x.first
+                    xLast = x.second
                 }
-                Regex("^[0-9.]").find(line) != null -> {
-                    transliterartion("0-9.", line, writer)
+                Regex("^[0-9.]\\s").find(line) != null -> {
+                    val x = transliterartion("0-9.", line, num, unnum, last, xLast, writer)
+                    last = x.first
+                    xLast = x.second
                 }
                 else -> {
                     for (word in line.split(Regex("\\s+"))) {
-                        edit(word, writer)
+                        edit(word, check, writer)
                     }
                 }
             }
@@ -682,8 +603,8 @@ fun markdownToHtml(inputName: String, outputName: String) {
     }
 
     for (i in 6 downTo 0) {
-        if (a[i] != 0) writer.write("</li></ul>")
-        if (b[i] != 0) writer.write("</li></ol>")
+        if (unnum[i] != 0) writer.write("</li></ul>")
+        if (num[i] != 0) writer.write("</li></ol>")
     }
     writer.write("</p></body></html>")
     writer.close()
