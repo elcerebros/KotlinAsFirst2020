@@ -325,61 +325,61 @@ Suspendisse <s>et elit in enim tempus iaculis</s>.
  *
  * (Отступы и переносы строк в примере добавлены для наглядности, при решении задачи их реализовывать не обязательно)
  */
+fun edit(word: String, check: MutableList<Int>, writer: BufferedWriter): BufferedWriter {
+    for (i in word.indices) {
+        when {
+            word.getOrNull(i - 2).toString() != "*" && word.getOrNull(i - 1).toString() == "*"
+                    && word.getOrNull(i).toString() == "*" -> {
+                if (check[0] == 0) {
+                    writer.write("<b>")
+                    check[0]++
+                } else {
+                    writer.write("</b>")
+                    check[0] = 0
+                }
+            }
+            (word.getOrNull(i - 2).toString() != "*" && word.getOrNull(i - 1).toString() == "*"
+                    && word.getOrNull(i).toString() != "*") ||
+                    (word.getOrNull(i).toString() == "*" && i == word.length - 1) ||
+                    (word.getOrNull(i - 2).toString() == "*" && word.getOrNull(i - 1).toString() == "*"
+                            && word.getOrNull(i).toString() == "*") -> {
+                if (check[1] == 0) {
+                    writer.write("<i>")
+                    check[1]++
+                } else {
+                    writer.write("</i>")
+                    check[1] = 0
+                }
+                if (word[i].toString() != "*" && word[i].toString() != "~") writer.write(word[i].toString())
+            }
+            word.getOrNull(i - 1).toString() == "~" && word.getOrNull(i).toString() == "~" -> {
+                if (check[2] == 0) {
+                    writer.write("<s>")
+                    check[2]++
+                } else {
+                    writer.write("</s>")
+                    check[2] = 0
+                }
+            }
+            else -> if (word[i].toString() != "*" && word[i].toString() != "~") writer.write(word[i].toString())
+        }
+    }
+    return writer
+}
+
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
     val check = mutableListOf(0, 0, 0)
     var numP = 0
     writer.write("<html><body><p>")
 
-    fun edit(word: String, writer: BufferedWriter): BufferedWriter {
-        for (i in word.indices) {
-            when {
-                word.getOrNull(i - 2).toString() != "*" && word.getOrNull(i - 1).toString() == "*"
-                        && word.getOrNull(i).toString() == "*" -> {
-                    if (check[0] == 0) {
-                        writer.write("<b>")
-                        check[0]++
-                    } else {
-                        writer.write("</b>")
-                        check[0] = 0
-                    }
-                }
-                (word.getOrNull(i - 2).toString() != "*" && word.getOrNull(i - 1).toString() == "*"
-                        && word.getOrNull(i).toString() != "*") ||
-                        (word.getOrNull(i).toString() == "*" && i == word.length - 1) ||
-                        (word.getOrNull(i - 2).toString() == "*" && word.getOrNull(i - 1).toString() == "*"
-                                && word.getOrNull(i).toString() == "*") -> {
-                    if (check[1] == 0) {
-                        writer.write("<i>")
-                        check[1]++
-                    } else {
-                        writer.write("</i>")
-                        check[1] = 0
-                    }
-                    if (word[i].toString() != "*" && word[i].toString() != "~") writer.write(word[i].toString())
-                }
-                word.getOrNull(i - 1).toString() == "~" && word.getOrNull(i).toString() == "~" -> {
-                    if (check[2] == 0) {
-                        writer.write("<s>")
-                        check[2]++
-                    } else {
-                        writer.write("</s>")
-                        check[2] = 0
-                    }
-                }
-                else -> if (word[i].toString() != "*" && word[i].toString() != "~") writer.write(word[i].toString())
-            }
-        }
-        return writer
-    }
-
     for ((x, line) in File(inputName).readLines().withIndex()) {
-        if (Regex("[A-za-z0-9.,~*=:;/+&^$#()@-]").find(line) == null && numP != 0) {
+        if (Regex("[A-za-z0-9.,~*=:;/+&^$#()@{}_-]").find(line) == null && numP != 0) {
             writer.write("</p><p>")
             numP = 0
         } else {
             for (word in line.split(Regex("\\s+"))) {
-                edit(word, writer)
+                edit(word, check, writer)
             }
             numP++
         }
@@ -485,6 +485,42 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
 ///////////////////////////////конец файла//////////////////////////////////////////////////////////////////////////////
  * (Отступы и переносы строк в примере добавлены для наглядности, при решении задачи их реализовывать не обязательно)
  */
+fun transliterartion(x: String, line: String, num: MutableList<Int>, unnum: MutableList<Int>, last: Int, xLast: String,
+                     writer: BufferedWriter): BufferedWriter {
+    val current = numOfSpaces(line) / 4
+    val paragraph1 = if (x == "*") "ul"
+    else "ol"
+    when {
+        last < current -> {
+            writer.write("<$paragraph1>")
+            writer.write("<li>")
+            if (x == "*") unnum[current]++
+            else num[current]++
+        }
+        last > current -> {
+            writer.write("</li>")
+            when {
+                unnum[last] != 0 -> writer.write("</ul>")
+                num[last] != 0 -> writer.write("</ol>")
+            }
+            writer.write("</li><li>")
+            if (xLast == "*") unnum[last] = 0
+            else num[last] = 0
+        }
+        else -> {
+            writer.write("</li><li>")
+            if (x == "*") unnum[current]++
+            else num[current]++
+        }
+    }
+    for (word in line.split(Regex("\\s[$x]|[$x]"))) {
+        writer.write(word)
+    }
+    //xLast = x
+    //last = current
+    return writer
+}
+
 fun markdownToHtmlLists(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
     val unnum = mutableListOf(0, 0, 0, 0, 0, 0, 0)
@@ -493,48 +529,13 @@ fun markdownToHtmlLists(inputName: String, outputName: String) {
     var xLast = ""
     writer.write("<html><body><p>")
 
-    fun transliterartion(x: String, line: String, writer: BufferedWriter): BufferedWriter {
-        val current = numOfSpaces(line) / 4
-        val paragraph1 = if (x == "*") "ul"
-        else "ol"
-        when {
-            last < current -> {
-                writer.write("<$paragraph1>")
-                writer.write("<li>")
-                if (x == "*") unnum[current]++
-                else num[current]++
-            }
-            last > current -> {
-                writer.write("</li>")
-                when {
-                    unnum[last] != 0 -> writer.write("</ul>")
-                    num[last] != 0 -> writer.write("</ol>")
-                }
-                writer.write("</li><li>")
-                if (xLast == "*") unnum[last] = 0
-                else num[last] = 0
-            }
-            else -> {
-                writer.write("</li><li>")
-                if (x == "*") unnum[current]++
-                else num[current]++
-            }
-        }
-        for (word in line.split(Regex("\\s[$x]|[$x]"))) {
-            writer.write(word)
-        }
-        xLast = x
-        last = current
-        return writer
-    }
-
     for (line in File(inputName).readLines()) {
         when {
             Regex("[*]\\s").find(line) != null -> {
-                transliterartion("*", line, writer)
+                transliterartion("*", line, num, unnum, last, xLast, writer)
             }
             Regex("[0-9.]\\s").find(line) != null -> {
-                transliterartion("0-9.", line, writer)
+                transliterartion("0-9.", line, num, unnum, last, xLast, writer)
             }
             else -> continue
         }
