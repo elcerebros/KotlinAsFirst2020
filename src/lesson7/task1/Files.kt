@@ -374,7 +374,7 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
     writer.write("<html><body><p>")
 
     for ((x, line) in File(inputName).readLines().withIndex()) {
-        if (Regex("[A-za-z0-9.,~*=:;/+&^$#()@{}_-]").find(line) == null && numP != 0) {
+        if (Regex("[A-za-z0-9.,~*=:;/+&^$#()@{}_|-]").find(line) == null && numP != 0) {
             writer.write("</p><p>")
             numP = 0
         } else {
@@ -486,7 +486,7 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
  * (Отступы и переносы строк в примере добавлены для наглядности, при решении задачи их реализовывать не обязательно)
  */
 fun transliterartion(x: String, line: String, num: MutableList<Int>, unnum: MutableList<Int>, last: Int, xLast: String,
-                     writer: BufferedWriter): BufferedWriter {
+                     writer: BufferedWriter): Pair<Int, String> {
     val current = numOfSpaces(line) / 4
     val paragraph1 = if (x == "*") "ul"
     else "ol"
@@ -516,9 +516,7 @@ fun transliterartion(x: String, line: String, num: MutableList<Int>, unnum: Muta
     for (word in line.split(Regex("\\s[$x]|[$x]"))) {
         writer.write(word)
     }
-    //xLast = x
-    //last = current
-    return writer
+    return Pair(current, x)
 }
 
 fun markdownToHtmlLists(inputName: String, outputName: String) {
@@ -532,10 +530,14 @@ fun markdownToHtmlLists(inputName: String, outputName: String) {
     for (line in File(inputName).readLines()) {
         when {
             Regex("[*]\\s").find(line) != null -> {
-                transliterartion("*", line, num, unnum, last, xLast, writer)
+                val x = transliterartion("*", line, num, unnum, last, xLast, writer)
+                last = x.first
+                xLast = x.second
             }
             Regex("[0-9.]\\s").find(line) != null -> {
-                transliterartion("0-9.", line, num, unnum, last, xLast, writer)
+                val x = transliterartion("0-9.", line, num, unnum, last, xLast, writer)
+                last = x.first
+                xLast = x.second
             }
             else -> continue
         }
