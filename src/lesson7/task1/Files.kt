@@ -370,24 +370,28 @@ fun transliterationSimple(word: String, check: MutableList<Int>, writer: Buffere
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
     val check = mutableListOf(0, 0, 0)
-    var numP = 1
-    writer.write("<html><body><p>")
+    var numP = 0
 
+    writer.write("<html><body>")
     for (line in File(inputName).readLines()) {
         when {
             Regex("[^\\s]").find(line) == null && numP != 0 -> {
-                writer.write("</p><p>")
+                writer.write("</p>")
                 numP = 0
             }
             Regex("[^\\s]").find(line) != null -> {
+                if (numP == 0) {
+                    writer.write("<p>")
+                }
                 for (word in line.split(Regex("\\s+"))) {
                     transliterationSimple(word, check, writer)
                 }
+                numP++
             }
         }
     }
-
-    writer.write("</p></body></html>")
+    if (numP != 0) writer.write("</p>")
+    writer.write("</body></html>")
     writer.close()
 }
 
@@ -516,9 +520,6 @@ fun transliterationLists(x: String, line: String, num: MutableList<Int>, unnum: 
             else num[current]++
         }
     }
-    for (word in line.split(Regex("\\s[$x]|[$x]"))) {
-        writer.write(word)
-    }
     return Pair(current, x)
 }
 
@@ -534,11 +535,17 @@ fun markdownToHtmlLists(inputName: String, outputName: String) {
             when {
                 Regex("[*]\\s").find(line) != null -> {
                     val x = transliterationLists("*", line, num, unnum, last, xLast, it)
+                    for (word in line.split(Regex("\\s[*]|[*]"))) {
+                        it.write(word)
+                    }
                     last = x.first
                     xLast = x.second
                 }
                 Regex("[0-9.]\\s").find(line) != null -> {
                     val x = transliterationLists("0-9.", line, num, unnum, last, xLast, it)
+                    for (word in line.split(Regex("\\s[0-9.]|[0-9.]"))) {
+                        it.write(word)
+                    }
                     last = x.first
                     xLast = x.second
                 }
@@ -572,9 +579,13 @@ fun markdownToHtml(inputName: String, outputName: String) {
         it.write("<html><body><p>")
 
         for ((x, line) in File(inputName).readLines().withIndex()) {
-            if (line.length == numOfSpaces(line) && numP != 0 && x != 0) {
+            if (Regex("[^\\s]").find(line) == null && numP != 0) {
                 it.write("</p><p>")
                 numP = 0
+                for (i in 0 until num.size) {
+                    num[i] = 0
+                    unnum[i] = 0
+                }
             } else {
                 when {
                     Regex("\\s+[*]\\s").find(line) != null -> {
@@ -587,19 +598,9 @@ fun markdownToHtml(inputName: String, outputName: String) {
                         last = a.first
                         xLast = a.second
                     }
-                    Regex("[^\\s]").find(line) == null && numP != 0 -> {
-                        it.write("</p><p>")
-                        numP = 0
-                        for (i in 0 until num.size) {
-                            num[i] = 0
-                            unnum[i] = 0
-                        }
-                    }
-                    Regex("[^\\s]").find(line) != null -> {
-                        for (word in line.split(Regex("\\s+"))) {
-                            transliterationSimple(word, check, it)
-                        }
-                    }
+                }
+                for (word in line.split(Regex("\\s+|(0-9.)|[*](\\s)+"))) {
+                    transliterationSimple(word, check, it)
                 }
                 numP++
             }
