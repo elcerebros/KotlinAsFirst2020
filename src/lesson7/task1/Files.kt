@@ -392,7 +392,7 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
             }
         }
     }
-    if (numP != 0) writer.write("</p>")
+    if (numP != 0 || numOfNotEmptyLines == 0) writer.write("</p>")
     writer.write("</body></html>")
     writer.close()
 }
