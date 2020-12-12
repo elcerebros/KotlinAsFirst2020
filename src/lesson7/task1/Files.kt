@@ -325,40 +325,40 @@ Suspendisse <s>et elit in enim tempus iaculis</s>.
  *
  * (Отступы и переносы строк в примере добавлены для наглядности, при решении задачи их реализовывать не обязательно)
  */
-fun transliterationSimple(word: String, check: MutableList<Int>, writer: BufferedWriter): BufferedWriter {
+fun transliterationSimple(word: String, check: MutableList<Boolean>, writer: BufferedWriter): BufferedWriter {
     for (i in word.indices) {
         when {
             word.getOrNull(i - 2).toString() != "*" && word.getOrNull(i - 1).toString() == "*"
                     && word.getOrNull(i).toString() == "*" -> {
-                if (check[0] == 0) {
-                    writer.write("<b>")
-                    check[0]++
-                } else {
+                if (check[0]) {
                     writer.write("</b>")
-                    check[0] = 0
+                    check[0] = false
+                } else {
+                    writer.write("<b>")
+                    check[0] = true
                 }
             }
             (word.getOrNull(i - 2).toString() != "*" && word.getOrNull(i - 1).toString() == "*"
                     && word.getOrNull(i).toString() != "*") ||
-                    (word.getOrNull(i).toString() == "*" && i == word.length - 1) ||
                     (word.getOrNull(i - 2).toString() == "*" && word.getOrNull(i - 1).toString() == "*"
-                            && word.getOrNull(i).toString() == "*") -> {
-                if (check[1] == 0) {
-                    writer.write("<i>")
-                    check[1]++
-                } else {
+                            && word.getOrNull(i).toString() == "*") ||
+                    (word.getOrNull(i).toString() == "*" && i == word.length - 1) -> {
+                if (check[1]) {
                     writer.write("</i>")
-                    check[1] = 0
+                    check[1] = false
+                } else {
+                    writer.write("<i>")
+                    check[1] = true
                 }
                 if (word[i].toString() != "*" && word[i].toString() != "~") writer.write(word[i].toString())
             }
             word.getOrNull(i - 1).toString() == "~" && word.getOrNull(i).toString() == "~" -> {
-                if (check[2] == 0) {
-                    writer.write("<s>")
-                    check[2]++
-                } else {
+                if (check[2]) {
                     writer.write("</s>")
-                    check[2] = 0
+                    check[2] = false
+                } else {
+                    writer.write("<s>")
+                    check[2] = true
                 }
             }
             else -> if (word[i].toString() != "*" && word[i].toString() != "~") writer.write(word[i].toString())
@@ -368,33 +368,36 @@ fun transliterationSimple(word: String, check: MutableList<Int>, writer: Buffere
 }
 
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
-    val writer = File(outputName).bufferedWriter()
-    val check = mutableListOf(0, 0, 0)
-    var numP = 0
-    var numOfNotEmptyLines = 0
+    File(outputName).bufferedWriter().use {
+        val check = mutableListOf(false, false, false) //Булевые флаги элементов транслитерации ([0] - "**", [1] - "*", [2] - "~~")
+        var numOfParagraph = 0
+        var numOfNotEmptyLines = 0
 
-    writer.write("<html><body><p>")
-    for (line in File(inputName).readLines()) {
-        when {
-            Regex("[^\\s]").find(line) == null && numP != 0 -> {
-                writer.write("</p>")
-                numP = 0
-            }
-            Regex("[^\\s]").find(line) != null -> {
-                numOfNotEmptyLines++
-                if (numP == 0 && numOfNotEmptyLines != 1) {
-                    writer.write("<p>")
+        it.write("<html><body><p>")
+        for (line in File(inputName).readLines()) {
+            when {
+                Regex("[^\\s]").find(line) == null && numOfParagraph != 0 -> { //Первая пустая строка (не учитывая табуляцию)
+                    it.write("</p>")
+                    numOfParagraph = 0
                 }
-                for (word in line.split(Regex("\\s+"))) {
-                    transliterationSimple(word, check, writer)
+                Regex("[^\\s]").find(line) != null -> {
+                    if (numOfParagraph == 0 && numOfNotEmptyLines != 0) { //Начало абзаца
+                        it.write("<p>")
+                    }
+                    for (word in line.split(Regex("\\s+"))) {
+                        transliterationSimple(word, check, it)
+                    }
+                    numOfNotEmptyLines++
+                    numOfParagraph++
                 }
-                numP++
+                else -> continue
             }
         }
+        if (numOfParagraph != 0 || numOfNotEmptyLines == 0) { //Условие конца абзаца при отсутсвии непустых строк или при последней непустой строке
+            it.write("</p>")
+        }
+        it.write("</body></html>")
     }
-    if (numP != 0 || numOfNotEmptyLines == 0) writer.write("</p>")
-    writer.write("</body></html>")
-    writer.close()
 }
 
 /**
@@ -525,9 +528,18 @@ fun transliterationLists(x: String, line: String, num: MutableList<Int>, unnum: 
     return Pair(current, x)
 }
 
+fun closeLists(num: MutableList<Int>, unnum: MutableList<Int>,
+               writer: BufferedWriter): BufferedWriter {
+    for (i in 6 downTo 0) {
+        if (unnum[i] != 0) writer.write("</li></ul>")
+        if (num[i] != 0) writer.write("</li></ol>")
+    }
+    return writer
+}
+
 fun markdownToHtmlLists(inputName: String, outputName: String) {
-    val unnum = mutableListOf(0, 0, 0, 0, 0, 0, 0)
-    val num = mutableListOf(0, 0, 0, 0, 0, 0, 0)
+    val unnum = mutableListOf(0, 0, 0, 0, 0, 0, 0) //Счетчик ненумерованных элементов списка при определенной табуляции
+    val num = mutableListOf(0, 0, 0, 0, 0, 0, 0) //Счетчик нумерованных элементов списка при определенной табуляции
     var last = -1
     var xLast = ""
 
@@ -554,10 +566,7 @@ fun markdownToHtmlLists(inputName: String, outputName: String) {
                 else -> continue
             }
         }
-        for (i in 6 downTo 0) {
-            if (unnum[i] != 0) it.write("</li></ul>")
-            if (num[i] != 0) it.write("</li></ol>")
-        }
+        closeLists(num, unnum, it)
         it.write("</p></body></html>")
     }
 }
@@ -574,22 +583,13 @@ fun markdownToHtml(inputName: String, outputName: String) {
     File(outputName).bufferedWriter().use {
         val unnum = mutableListOf(0, 0, 0, 0, 0, 0, 0)
         val num = mutableListOf(0, 0, 0, 0, 0, 0, 0)
-        val check = mutableListOf(0, 0, 0)
+        val check = mutableListOf(false, false, false)
         var last = -1
         var xLast = ""
         var numP = 0
         it.write("<html><body>")
 
-        fun closeLists(num: MutableList<Int>, unnum: MutableList<Int>,
-                       writer: BufferedWriter): BufferedWriter {
-            for (i in 6 downTo 0) {
-                if (unnum[i] != 0) it.write("</li></ul>")
-                if (num[i] != 0) it.write("</li></ol>")
-            }
-            return writer
-        }
-
-        for ((x, line) in File(inputName).readLines().withIndex()) {
+        for (line in File(inputName).readLines()) {
             if (Regex("[^\\s]").find(line) == null && numP != 0) {
                 it.write("</p>")
                 numP = 0
@@ -616,7 +616,6 @@ fun markdownToHtml(inputName: String, outputName: String) {
                 numP++
             }
         }
-
         closeLists(num, unnum, it)
         it.write("</body></html>")
     }
