@@ -370,9 +370,9 @@ fun transliterationSimple(word: String, check: MutableList<Int>, writer: Buffere
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
     val check = mutableListOf(0, 0, 0)
-    var numP = 0
+    var numP = 1
 
-    writer.write("<html><body>")
+    writer.write("<html><body><p>")
     for (line in File(inputName).readLines()) {
         when {
             Regex("[^\\s]").find(line) == null && numP != 0 -> {
@@ -576,16 +576,22 @@ fun markdownToHtml(inputName: String, outputName: String) {
         var last = -1
         var xLast = ""
         var numP = 0
-        it.write("<html><body><p>")
+        it.write("<html><body>")
+
+        fun closeLists(num: MutableList<Int>, unnum: MutableList<Int>,
+                       writer: BufferedWriter): BufferedWriter {
+            for (i in 6 downTo 0) {
+                if (unnum[i] != 0) it.write("</li></ul>")
+                if (num[i] != 0) it.write("</li></ol>")
+            }
+            return writer
+        }
 
         for ((x, line) in File(inputName).readLines().withIndex()) {
             if (Regex("[^\\s]").find(line) == null && numP != 0) {
-                it.write("</p><p>")
+                it.write("</p>")
                 numP = 0
-                for (i in 0 until num.size) {
-                    num[i] = 0
-                    unnum[i] = 0
-                }
+                closeLists(num, unnum, it)
             } else {
                 when {
                     Regex("\\s+[*]\\s").find(line) != null -> {
@@ -599,6 +605,9 @@ fun markdownToHtml(inputName: String, outputName: String) {
                         xLast = a.second
                     }
                 }
+                if (numP == 0) {
+                    it.write("<p>")
+                }
                 for (word in line.split(Regex("\\s+|(0-9.)|[*](\\s)+"))) {
                     transliterationSimple(word, check, it)
                 }
@@ -606,11 +615,8 @@ fun markdownToHtml(inputName: String, outputName: String) {
             }
         }
 
-        for (i in 6 downTo 0) {
-            if (unnum[i] != 0) it.write("</li></ul>")
-            if (num[i] != 0) it.write("</li></ol>")
-        }
-        it.write("</p></body></html>")
+        closeLists(num, unnum, it)
+        it.write("</body></html>")
     }
 }
 
