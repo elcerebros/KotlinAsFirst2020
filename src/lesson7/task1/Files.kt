@@ -350,7 +350,9 @@ fun transliterationSimple(word: String, check: MutableList<Boolean>, writer: Buf
                     writer.write("<i>")
                     check[1] = true
                 }
-                if (word[i].toString() != "*" && word[i].toString() != "~") writer.write(word[i].toString())
+                if (word.getOrNull(i).toString() != "*" && word.getOrNull(i).toString() != "~") {
+                    writer.write(word[i].toString()) //Случай, когда word.getOrNull(i - 2).toString() != "*" && word.getOrNull(i - 1).toString() == "*" && word.getOrNull(i).toString() != "*"
+                }
             }
             word.getOrNull(i - 1).toString() == "~" && word.getOrNull(i).toString() == "~" -> {
                 if (check[2]) {
@@ -497,41 +499,41 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
 ///////////////////////////////конец файла//////////////////////////////////////////////////////////////////////////////
  * (Отступы и переносы строк в примере добавлены для наглядности, при решении задачи их реализовывать не обязательно)
  */
-fun transliterationLists(x: String, line: String, num: MutableList<Int>, unnum: MutableList<Int>, last: Int, xLast: String,
+fun transliterationLists(x: String, line: String, num: MutableList<Int>, unNum: MutableList<Int>, last: Int, xLast: String,
                          writer: BufferedWriter): Pair<Int, String> {
-    val current = numOfSpaces(line) / 4
-    val paragraph1 = if (x == "*") "ul"
+    val current = numOfSpaces(line) / 4 //Табуляция текущей строки
+    val paragraph = if (x == "*") "ul"
     else "ol"
     when {
         current > last -> { //Начало подсписка (табуляция текущей строки больше предыдущей)
-            writer.write("<$paragraph1>")
+            writer.write("<$paragraph>")
             writer.write("<li>")
-            if (x == "*") unnum[current]++
+            if (x == "*") unNum[current]++
             else num[current]++
         }
         current < last -> { //Конец подсписка (табуляция текущей строки меньше предыдущей)
             writer.write("</li>")
             when {
-                unnum[last] != 0 -> writer.write("</ul>")
+                unNum[last] != 0 -> writer.write("</ul>")
                 num[last] != 0 -> writer.write("</ol>")
             }
             writer.write("</li><li>")
-            if (xLast == "*") unnum[last] = 0
+            if (xLast == "*") unNum[last] = 0
             else num[last] = 0
         }
         else -> { //Продолжение предыдущего списка
             writer.write("</li><li>")
-            if (x == "*") unnum[current]++
+            if (x == "*") unNum[current]++
             else num[current]++
         }
     }
     return Pair(current, x)
 }
 
-fun closeLists(num: MutableList<Int>, unnum: MutableList<Int>,
+fun closeLists(num: MutableList<Int>, unNum: MutableList<Int>,
                writer: BufferedWriter): BufferedWriter {
     for (i in 6 downTo 0) {
-        if (unnum[i] != 0) writer.write("</li></ul>")
+        if (unNum[i] != 0) writer.write("</li></ul>")
         if (num[i] != 0) writer.write("</li></ol>")
     }
     return writer
@@ -539,7 +541,7 @@ fun closeLists(num: MutableList<Int>, unnum: MutableList<Int>,
 
 fun markdownToHtmlLists(inputName: String, outputName: String) {
     File(outputName).bufferedWriter().use {
-        val unnum = mutableListOf(0, 0, 0, 0, 0, 0, 0) //Счетчик ненумерованных элементов списка при определенной табуляции
+        val unNum = mutableListOf(0, 0, 0, 0, 0, 0, 0) //Счетчик ненумерованных элементов списка при определенной табуляции
         val num = mutableListOf(0, 0, 0, 0, 0, 0, 0) //Счетчик нумерованных элементов списка при определенной табуляции
         var last = -1 //Табуляция предыдущей строки
         var xLast = "" //Вид списка предыдущей строки
@@ -547,26 +549,26 @@ fun markdownToHtmlLists(inputName: String, outputName: String) {
         it.write("<html><body><p>")
         for (line in File(inputName).readLines()) {
             when {
-                Regex("""^(\s)?[*]\s|^(\s)+[*]\s""").find(line) != null -> {
-                    val res = transliterationLists("*", line, num, unnum, last, xLast, it)
+                Regex("""^(\s)?[*]\s|(\s)+[*]\s""").find(line) != null -> {
+                    val res = transliterationLists("*", line, num, unNum, last, xLast, it)
                     last = res.first
                     xLast = res.second
-                    for (word in line.split(Regex("""^(\s)?[*]\s|^(\s)+[*]\s|\s+"""))) {
+                    for (word in line.split(Regex("""^(\s)?[*]\s|(\s)+[*]\s|\s+"""))) {
                         it.write(word)
                     }
                 }
-                Regex("""^(\s)?[0-9]+[.]\s|^(\s)+[0-9]+[.]\s""").find(line) != null -> {
-                    val res = transliterationLists("0", line, num, unnum, last, xLast, it)
+                Regex("""^(\s)?[0-9]+[.]\s|(\s)+[0-9]+[.]\s""").find(line) != null -> {
+                    val res = transliterationLists("0", line, num, unNum, last, xLast, it)
                     last = res.first
                     xLast = res.second
-                    for (word in line.split(Regex("""^(\s)?[0-9]+[.]\s|^(\s)+[0-9]+[.]\s|\s+"""))) {
+                    for (word in line.split(Regex("""^(\s)?[0-9]+[.]\s|(\s)+[0-9]+[.]\s|\s+"""))) {
                         it.write(word)
                     }
                 }
                 else -> continue
             }
         }
-        closeLists(num, unnum, it)
+        closeLists(num, unNum, it)
         it.write("</p></body></html>")
     }
 }
