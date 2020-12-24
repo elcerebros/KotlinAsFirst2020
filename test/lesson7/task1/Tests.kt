@@ -1,5 +1,6 @@
 package lesson7.task1
 
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
@@ -441,5 +442,25 @@ Basic, Ruby, Swift.
         )
 
         File("temp.txt").delete()
+    }
+
+    @Test
+    @Tag("Test")
+    fun labyrinth() {
+        assertEquals("ulllullddlllll", labyrinth("input/labyrinth1.txt"))
+        assertEquals("rddlldddrrrurrrrrru", labyrinth("input/labyrinth2.txt"))
+        assertEquals(
+            "rrrrddrrdrrrrruurrrrrrrrrrrrrrrrrrrrrrrrrrrrrrruulllllllluulllllllllldlllllluullllllllllllllll",
+            labyrinth("input/labyrinth3.txt")
+        )
+        Assertions.assertThrows(Exception::class.java) {
+            labyrinth("input/labyrinth4.txt") //Случай, когда отсутствует вход в лабиринт
+        }
+        Assertions.assertThrows(Exception::class.java) {
+            labyrinth("input/labyrinth5.txt") //Случай с некорректным файлом
+        }
+        Assertions.assertThrows(Exception::class.java) {
+            labyrinth("input/labyrinth6.txt") //Случай, когда невозможно найти выход из лабиринта
+        }
     }
 }

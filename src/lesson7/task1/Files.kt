@@ -4,6 +4,7 @@ package lesson7.task1
 
 import java.io.BufferedWriter
 import java.io.File
+import java.util.*
 
 // Урок 7: работа с файлами
 // Урок интегральный, поэтому его задачи имеют сильно увеличенную стоимость
@@ -147,8 +148,10 @@ fun centerFile(inputName: String, outputName: String) {
 
         for (line in File(inputName).readLines()) {
             val numOfSpaces = numOfSpaces(line)
-            val gap = kotlin.math.abs((max - line.length + numOfSpacesBack(line)
-                    + numOfSpaces) / 2) - numOfSpaces
+            val gap = kotlin.math.abs(
+                (max - line.length + numOfSpacesBack(line)
+                        + numOfSpaces) / 2
+            ) - numOfSpaces
 
             for (i in 0 until gap) {
                 it.write(" ")
@@ -372,7 +375,11 @@ fun transliterationSimple(word: String, check: MutableList<Boolean>, writer: Buf
 
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
     File(outputName).bufferedWriter().use {
-        val check = mutableListOf(false, false, false) //Булевые флаги элементов транслитерации ([0] - "**", [1] - "*", [2] - "~~")
+        val check = mutableListOf(
+            false,
+            false,
+            false
+        ) //Булевые флаги элементов транслитерации ([0] - "**", [1] - "*", [2] - "~~")
         var paragraph = false //Булевый флаг начала/конца абзаца
         var numOfNotEmptyLines = 0
 
@@ -500,8 +507,10 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
 ///////////////////////////////конец файла//////////////////////////////////////////////////////////////////////////////
  * (Отступы и переносы строк в примере добавлены для наглядности, при решении задачи их реализовывать не обязательно)
  */
-fun transliterationLists(typeOfList: String, line: String, num: MutableList<Int>, unNum: MutableList<Int>, last: Int, xLast: String,
-                         writer: BufferedWriter): Pair<Int, String> {
+fun transliterationLists(
+    typeOfList: String, line: String, num: MutableList<Int>, unNum: MutableList<Int>, last: Int, xLast: String,
+    writer: BufferedWriter
+): Pair<Int, String> {
     val current = numOfSpaces(line) / 4 //Табуляция текущей строки
     val paragraph = if (typeOfList == "*") "ul"
     else "ol"
@@ -531,8 +540,10 @@ fun transliterationLists(typeOfList: String, line: String, num: MutableList<Int>
     return Pair(current, typeOfList)
 }
 
-fun closeLists(num: List<Int>, unNum: List<Int>,
-               writer: BufferedWriter): BufferedWriter {
+fun closeLists(
+    num: List<Int>, unNum: List<Int>,
+    writer: BufferedWriter
+): BufferedWriter {
     for (i in 6 downTo 0) {
         if (unNum[i] != 0) writer.write("</li></ul>")
         if (num[i] != 0) writer.write("</li></ol>")
@@ -542,12 +553,13 @@ fun closeLists(num: List<Int>, unNum: List<Int>,
 
 fun markdownToHtmlLists(inputName: String, outputName: String) {
     File(outputName).bufferedWriter().use {
-        val unNum = mutableListOf(0, 0, 0, 0, 0, 0, 0) //Счетчик ненумерованных элементов списка при определенной табуляции
+        val unNum =
+            mutableListOf(0, 0, 0, 0, 0, 0, 0) //Счетчик ненумерованных элементов списка при определенной табуляции
         val num = mutableListOf(0, 0, 0, 0, 0, 0, 0) //Счетчик нумерованных элементов списка при определенной табуляции
         var last = -1 //Табуляция предыдущей строки
         var xLast = "" //Вид списка предыдущей строки
-        var typeOfList = ""
-        var regexByType = ""
+        var typeOfList: String
+        var regexByType: String
 
         it.write("<html><body><p>")
         for (line in File(inputName).readLines()) {
@@ -640,3 +652,141 @@ fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
     TODO()
 }
 
+/**
+ * Индивидульное задание
+ *
+ * Дан текстовый файл, в котором схематично изображена схема прямоугольного мини-лабиринта:
+ * 1) во всех строках одинаковое количество символов
+ * 2) символ # обозначает препятствие, символ . свободное место, символ * начальное местоположение "Робота",
+ *    символ ^ местоположение "цели"
+ *
+ * Функция, которую нужно написать, принимает как параметр имя этого файла. Она должна вернуть как результат строку с
+ * командами для робота вида "rllluddurld", где r обозначает движение на клетку вправо, l влево, u вверх и d вниз,
+ * такую, чтобы робот, исполнив эти команды, прошёл от своего начального местоположения до цели (на препятствия
+ * наступать нельзя). В случае, если подобный проход невозможен, следует бросить исключение (любое на ваш выбор).
+ * Необходимо написать функцию и тесты к ней. Сделать это можно прямо внутри своего проекта KotlinAsFirst в любом
+ * уроке, и, когда будет готово — прислать мне ссылку на Git репозиторий.
+ */
+class Graph {
+    private data class Vertex(val name: String) {
+        val neighbors = mutableSetOf<Vertex>()
+    }
+
+    private val vertices = mutableMapOf<String, Vertex>()
+
+    private operator fun get(name: String) = vertices[name] ?: throw IllegalArgumentException()
+
+    fun addVertex(name: String) {
+        vertices[name] = Vertex(name)
+    }
+
+    private fun connect(first: Vertex, second: Vertex) {
+        first.neighbors.add(second)
+        second.neighbors.add(first)
+    }
+
+    fun connect(first: String, second: String) = connect(this[first], this[second])
+
+    fun neighbors(name: String) = vertices[name]?.neighbors?.map { it.name } ?: listOf()
+
+    fun bfs(start: String, startCoordinate: Pair<Int, Int>, finish: String, finishCoordinate: Pair<Int, Int>) =
+        bfs(this[start], startCoordinate, this[finish], finishCoordinate)
+
+    private fun bfs(
+        start: Vertex, startCoordinate: Pair<Int, Int>, finish: Vertex, finishCoordinate: Pair<Int, Int>
+    ): String {
+        val queue = LinkedList<Vertex>()
+        val visited = mutableMapOf(start to Triple(0, "", startCoordinate))
+        queue.add(start)
+
+        while (queue.isNotEmpty()) {
+            val next = queue.poll()
+            val lastPathway = visited[next]!!.second //Траектория пути, пройденного от заданной вершины до текущей
+            val lastCoordinate = visited[next]!!.third //Координата текущей вершины
+            if (next == finish) return lastPathway
+
+            for (neighbor in next.neighbors) {
+                if (neighbor in visited) continue
+                val currentCoordinate = if (neighbor != finish) { //Координата соседней вершины
+                    val currentCoordinateList = neighbor.name.split(" ")
+                    Pair(currentCoordinateList[0].toInt(), currentCoordinateList[1].toInt())
+                } else finishCoordinate
+                val currentPathway =
+                    when { //Траектория пути, пройденного от заданной вершины до соседней относительно текущей
+                        lastCoordinate.first - currentCoordinate.first == 1 -> lastPathway + "l"
+                        lastCoordinate.first - currentCoordinate.first == -1 -> lastPathway + "r"
+                        lastCoordinate.second - currentCoordinate.second == 1 -> lastPathway + "u"
+                        else -> lastPathway + "d"
+                    }
+
+                visited[neighbor] = Triple(visited[next]!!.first + 1, currentPathway, currentCoordinate)
+                queue.add(neighbor)
+            }
+        }
+        throw Exception()
+    }
+}
+
+fun labyrinth(inputName: String): String {
+    val matrix = mutableListOf<MutableList<Int>>()
+    val maze = Graph()
+    var start = Pair(-1, -1)
+    var finish = Pair(-1, -1)
+    /*
+    Чтобы в дальнейшем не мучаться, кладу координаты входа и выхода из лабиринта в отдельные переменные
+     */
+
+    for ((y, line) in File(inputName).readLines().withIndex()) {
+        matrix.add(mutableListOf())
+        for ((x, letter) in line.withIndex()) {
+            var nameOfVertex: String
+            when (letter.toString()) {
+                "#" -> {
+                    matrix[y].add(0)
+                    continue
+                }
+                "." -> {
+                    matrix[y].add(1)
+                    nameOfVertex = "$x $y"
+                    /*
+                    Для удобства использую координаты "ячейки" как ее назвние (достаю координату в ф-ии bfs с помощью split'а)
+                     */
+                }
+                "*" -> {
+                    matrix[y].add(2)
+                    nameOfVertex = "Start"
+                    start = Pair(x, y)
+                }
+                "^" -> {
+                    matrix[y].add(3)
+                    nameOfVertex = "Finish"
+                    finish = Pair(x, y)
+                }
+                else -> throw Exception()
+            }
+            val lastY = matrix.elementAtOrNull(y - 1)?.elementAtOrNull(x) //Значение верхней "ячейки" матрицы
+            val lastX = matrix.elementAtOrNull(y)?.elementAtOrNull(x - 1) //Значение левой "ячейки" матрицы
+            maze.addVertex(nameOfVertex)
+
+            if (lastY == 1) {
+                val currentValue = y - 1
+                maze.connect(nameOfVertex, "$x $currentValue")
+            }
+            if (lastX == 1) {
+                val currentValue = x - 1
+                maze.connect(nameOfVertex, "$currentValue $y")
+            }
+            if ((lastY == 2 || lastX == 2) && nameOfVertex != "Start") {
+                maze.connect(nameOfVertex, "Start")
+            }
+            if ((lastY == 3 || lastX == 3) && nameOfVertex != "Finish") {
+                maze.connect(nameOfVertex, "Finish")
+            }
+        }
+    }
+
+    if (finish == Pair(-1, -1) || start == Pair(-1, -1)) {
+        throw Exception()
+    }
+    return maze.bfs("Start", start, "Finish", finish)
+}
